@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeTap - Your Emergency Information, One Scan Away</title>
+  
+  <!-- Instant Theme Applicator (Prevents Flash of Light Mode) -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('lifetap_theme');
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark-theme');
+      }
+    })();
+  </script>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts: Plus Jakarta Sans & Caveat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Connected CSS -->
+  <link rel="stylesheet" href="firstpage.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="firstpage.html" class="logo">
+        <div class="logo-icon">
+          <i class="fa-solid fa-heart-pulse"></i>
+        </div>
+        <span class="logo-text">LifeTap</span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="#home" class="nav-item active">Home</a>
+        <a href="#about" class="nav-item">About</a>
+        <a href="#how-it-works" class="nav-item">How It Works</a>
+        <a href="#features" class="nav-item">Features</a>
+      </nav>
+
+      <div class="nav-auth">
+        <a href="secondpage.html" class="btn btn-outline">Login</a>
+        <a href="thirdpage.html" class="btn btn-primary btn-glow">Register</a>
+        
+        <!-- Dark / Light Theme Toggle Switch -->
+        <button id="themeToggleBtn" class="theme-toggle-btn" aria-label="Toggle theme">
+          <i class="fa-solid fa-moon" id="themeIcon"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+      <div class="hero-container">
+        
+        <!-- Hero Left Text Content -->
+        <div class="hero-content">
+          <div class="badge fade-in-down">
+            <i class="fa-solid fa-power-off"></i>
+            <span>Your Safety, Always Accessible</span>
+          </div>
+
+          <h1 class="hero-title fade-in-left">
+            Your Emergency<br>
+            Information,<br>
+            <span class="text-red">One Scan Away.</span>
+          </h1>
+
+          <p class="hero-description fade-in-left delay-1">
+            Keep your essential medical and emergency details accessible when it matters most.
+          </p>
+
+          <a href="thirdpage.html" class="btn btn-primary btn-hero btn-glow fade-in-up delay-2">
+            Get Started <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+
+        <!-- Hero Right Graphic/Mockup Area -->
+        <div class="hero-visual fade-in-right delay-1">
+          <div class="phone-wrapper float-anim">
+            
+            <!-- Smartphone Frame -->
+            <div class="phone-frame">
+              <div class="phone-notch">
+                <div class="notch-camera"></div>
+                <div class="notch-speaker"></div>
+              </div>
+              
+              <!-- Phone Screen Content -->
+              <div class="phone-screen">
+                <div class="app-header">
+                  <i class="fa-solid fa-heart-pulse logo-red"></i>
+                  <span class="app-title">LifeTap</span>
+                </div>
+
+                <div class="qr-container">
+                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=LifeTap-Demo-Profile&color=111827" alt="LifeTap QR Code">
+                </div>
+
+                <p class="qr-label">Scan to view<br><strong>Emergency Profile</strong></p>
+              </div>
+            </div>
+
+            <!-- Floating Profile Info Card -->
+            <div class="floating-badge badge-pulse">
+              <div class="badge-row">
+                <div class="badge-icon icon-drop">
+                  <i class="fa-solid fa-droplet"></i>
+                </div>
+                <div class="badge-text">
+                  <span class="badge-title">Blood Group</span>
+                  <span class="badge-value text-red">B+</span>
+                </div>
+              </div>
+
+              <div class="badge-row">
+                <div class="badge-icon icon-heart">
+                  <i class="fa-solid fa-heart-pulse"></i>
+                </div>
+                <div class="badge-text">
+                  <span class="badge-title">Medical Alerts</span>
+                  <span class="badge-value">Asthma</span>
+                </div>
+              </div>
+
+              <div class="badge-row">
+                <div class="badge-icon icon-phone">
+                  <i class="fa-solid fa-phone"></i>
+                </div>
+                <div class="badge-text">
+                  <span class="badge-title">Emergency Contact</span>
+                  <span class="badge-value">+91 98765 43210</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Handwritten Annotation Arrow -->
+            <div class="annotation">
+              <svg class="curved-arrow" width="55" height="55" viewBox="0 0 50 50" fill="none">
+                <path d="M10 10 Q 35 10 40 40" stroke="#c82333" stroke-width="2.5" stroke-dasharray="4 3" stroke-linecap="round" fill="none" />
+                <path d="M32 34 L 40 40 L 44 30" stroke="#c82333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+              </svg>
+              <span class="annotation-text">Create your<br>LifeTap ID</span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+      <div class="about-card glass-panel">
+        <div class="about-badge">
+          <i class="fa-solid fa-circle-info"></i>
+          <span>About LifeTap</span>
+        </div>
+        <h2>Instant Access to Critical Health Data</h2>
+        <p>LifeTap connects first responders and doctors directly with your emergency medical contacts, allergies, blood type, and health conditions through a fast, secure, scan-to-view QR code.</p>
+      </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="how-it-works">
+      <div class="section-header">
+        <h2>How LifeTap Works</h2>
+        <p>Simple steps for a safer tomorrow.</p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card glass-panel">
+          <div class="step-number">1</div>
+          <div class="step-icon">
+            <i class="fa-solid fa-user-plus"></i>
+          </div>
+          <h3>Create Profile</h3>
+          <p>Add your essential medical details, emergency contacts, and allergies.</p>
+        </div>
+
+        <div class="step-card glass-panel">
+          <div class="step-number">2</div>
+          <div class="step-icon">
+            <i class="fa-solid fa-qrcode"></i>
+          </div>
+          <h3>Get Your QR</h3>
+          <p>Receive your personalized, instant-access LifeTap ID and QR code.</p>
+        </div>
+
+        <div class="step-card glass-panel">
+          <div class="step-number">3</div>
+          <div class="step-icon">
+            <i class="fa-solid fa-users"></i>
+          </div>
+          <h3>Scan in Emergency</h3>
+          <p>Paramedics or helpers can scan your QR code to save precious minutes.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Why Choose LifeTap Section -->
+    <section id="features" class="why-choose">
+      <div class="section-header">
+        <h2>Why Choose LifeTap?</h2>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-item">
+          <div class="feature-icon icon-glow">
+            <i class="fa-solid fa-bolt"></i>
+          </div>
+          <h3>Quick Access</h3>
+          <p>In critical emergencies</p>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon icon-glow">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <h3>Secure & Private</h3>
+          <p>Your data is protected</p>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon icon-glow">
+            <i class="fa-solid fa-user-check"></i>
+          </div>
+          <h3>Easy to Use</h3>
+          <p>Simple and fast setup</p>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon icon-glow">
+            <i class="fa-solid fa-heart"></i>
+          </div>
+          <h3>Peace of Mind</h3>
+          <p>For you & your loved ones</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Connected JS -->
+  <script src="firstpage.js"></script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeTap - Dashboard</title>
+  
+  <!-- Instant Theme Applicator (Prevents Flash of Light Mode) -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('lifetap_theme');
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark-theme');
+      }
+    })();
+  </script>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Connected CSS -->
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar glass-panel">
+      <div class="sidebar-header">
+        <a href="firstpage.html" class="logo">
+          <div class="logo-icon">
+            <i class="fa-solid fa-heart-pulse"></i>
+          </div>
+          <span class="logo-text">LifeTap</span>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-link active">
+          <i class="fa-solid fa-house"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="#" class="nav-link">
+          <i class="fa-solid fa-user"></i>
+          <span>My Profile</span>
+        </a>
+        <a href="#" class="nav-link">
+          <i class="fa-solid fa-phone-volume"></i>
+          <span>Emergency Contacts</span>
+        </a>
+        <a href="#" class="nav-link">
+          <i class="fa-solid fa-qrcode"></i>
+          <span>My QR Code</span>
+        </a>
+        <a href="#" class="nav-link">
+          <i class="fa-solid fa-gear"></i>
+          <span>Settings</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="logoutBtn" class="logout-btn">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- Top Header Bar -->
+      <header class="topbar">
+        <div class="topbar-search">
+          <!-- Optional spacing / breadcrumbs -->
+        </div>
+        
+        <div class="topbar-actions">
+          <!-- Theme Toggle Button -->
+          <button id="themeToggleBtn" class="theme-toggle-btn" aria-label="Toggle theme">
+            <i class="fa-solid fa-moon" id="themeIcon"></i>
+          </button>
+
+          <button class="icon-btn" aria-label="Notifications">
+            <i class="fa-regular fa-bell"></i>
+            <span class="notification-badge"></span>
+          </button>
+
+          <div class="user-profile-menu">
+            <img src="https://i.ibb.co/LD6NNNTC/Gemini-Generated-Image-k578m1k578m1k578.png" alt="User Avatar" class="avatar-img">
+            <span class="username-display" id="userNameDisplay">Sania</span>
+            <i class="fa-solid fa-chevron-down dropdown-icon"></i>
+          </div>
+        </div>
+      </header>
+
+      <!-- Dashboard Body Content -->
+      <div class="dashboard-body fade-in-up">
+        
+        <!-- Welcome Greeting Section -->
+        <div class="welcome-banner">
+          <div class="welcome-text">
+            <h1>Welcome back, <span id="welcomeName">Sania</span>! 👋</h1>
+            <p>Your emergency profile is active and ready.</p>
+          </div>
+          <div class="status-pill">
+            <span class="status-dot"></span>
+            <span>Profile Active</span>
+          </div>
+        </div>
+
+        <!-- Info Summary Cards Grid -->
+        <div class="summary-grid">
+          <div class="summary-card glass-panel">
+            <div class="summary-icon icon-drop">
+              <i class="fa-solid fa-droplet"></i>
+            </div>
+            <div class="summary-details">
+              <span class="summary-title">Blood Group</span>
+              <span class="summary-value text-red">B+</span>
+            </div>
+          </div>
+
+          <div class="summary-card glass-panel">
+            <div class="summary-icon icon-heart">
+              <i class="fa-solid fa-heart-pulse"></i>
+            </div>
+            <div class="summary-details">
+              <span class="summary-title">Medical Alerts</span>
+              <span class="summary-value">Asthma</span>
+            </div>
+          </div>
+
+          <div class="summary-card glass-panel">
+            <div class="summary-icon icon-contacts">
+              <i class="fa-solid fa-users"></i>
+            </div>
+            <div class="summary-details">
+              <span class="summary-title">Emergency Contacts</span>
+              <span class="summary-value">2 Added</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- QR Code Display Box -->
+        <div class="qr-section-card glass-panel">
+          <div class="qr-info-header">
+            <div>
+              <h3>Your LifeTap QR Code</h3>
+              <p>Share this QR code in case of emergency.</p>
+            </div>
+          </div>
+
+          <div class="qr-display-content">
+            <div class="qr-box">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=LifeTap-Active-Emergency-ID&color=111827" alt="LifeTap QR Code">
+            </div>
+
+            <div class="qr-details-box">
+              <span class="id-label">LifeTap ID</span>
+              <div class="id-row">
+                <strong id="lifetapIdText">LT2025A1234</strong>
+                <button class="copy-btn" id="copyIdBtn" title="Copy ID">
+                  <i class="fa-regular fa-copy"></i>
+                </button>
+              </div>
+
+              <button class="btn btn-primary btn-glow" id="viewQrBtn">
+                View QR Code
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions Section -->
+        <div class="quick-actions-container">
+          <h3>Quick Actions</h3>
+          <div class="actions-grid">
+            <a href="#" class="action-card glass-panel">
+              <div class="action-icon icon-edit">
+                <i class="fa-solid fa-pen"></i>
+              </div>
+              <span>Edit Profile</span>
+            </a>
+
+            <a href="#" class="action-card glass-panel">
+              <div class="action-icon icon-manage">
+                <i class="fa-solid fa-address-book"></i>
+              </div>
+              <span>Manage Contacts</span>
+            </a>
+
+            <a href="#" class="action-card glass-panel">
+              <div class="action-icon icon-view">
+                <i class="fa-solid fa-eye"></i>
+              </div>
+              <span>View Profile</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Connected JS -->
+  <script src="dashboard.js"></script>
+</body>
+</html>
