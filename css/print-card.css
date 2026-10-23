@@ -1,0 +1,71 @@
+/* ==========================================================================
+   LifeTap: Printable Emergency ID Card Stylesheet
+   ========================================================================== */
+
+@media print {
+  /* Hide all dashboard chrome and navigation */
+  body * {
+    visibility: hidden;
+  }
+
+  .site-header, .site-footer, .dash-tabs, .dashboard-topbar, .dashboard-stats-grid, #toast-container, #lifetap-firebase-status-banner, .btn, .no-print {
+    display: none !important;
+  }
+
+  /* Make printable card container visible and center it */
+  #printable-card-area, #printable-card-area * {
+    visibility: visible;
+  }
+
+  #printable-card-area {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 3.375in;  /* Standard ID card width (CR80 format: ~85.6mm) */
+    height: 2.125in; /* Standard ID card height (~53.98mm) */
+    margin: 0;
+    padding: 0;
+    box-shadow: none !important;
+    border: 2px solid #dc2626 !important;
+    border-radius: 8px !important;
+    background: #ffffff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .wallet-card-header {
+    background-color: #dc2626 !important;
+    color: #ffffff !important;
+    padding: 6px 12px !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .wallet-card-body {
+    padding: 8px 12px !important;
+    grid-template-columns: 1fr 90px !important;
+    gap: 8px !important;
+  }
+
+  .wallet-card-footer {
+    background-color: #fee2e2 !important;
+    color: #b91c1c !important;
+    padding: 4px 8px !important;
+    font-size: 8px !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .card-info-item {
+    margin-bottom: 3px !important;
+  }
+
+  .card-info-label {
+    font-size: 7px !important;
+  }
+
+  .card-info-val {
+    font-size: 10px !important;
+  }
+}

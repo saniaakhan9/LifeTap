@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // 1. Private User Documents & Profile Settings
+    // Only the authenticated account holder can read or modify their own complete profile
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      // User private subcollections (settings, privacy, audit logs)
+      match /settings/{settingDoc} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // 2. Public Emergency Tokens Registry
+    // The public rescuer page can read the emergency token if it is active.
+    // Only the owner who generated the token can update, deactivate, or delete it.
+    match /emergency_tokens/{tokenId} {
+      // Anyone with the specific token URL can read the permitted emergency fields
+      allow read: if true;
+
+      // Only the owning user can create their token record
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+
+      // Only the owning user can update or deactivate their token record
+      allow update: if isAuthenticated() && resource.data.userId == request.auth.uid;
+
+      // Only the owner can delete
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    // Default deny all other paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

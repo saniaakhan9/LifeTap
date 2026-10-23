@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In / Register — LifeTap Smart Emergency ID</title>
+  <meta name="description" content="Securely access your LifeTap emergency profile and manage your emergency QR code.">
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/auth.css">
+
+  <!-- Optional Firebase Compat SDKs (for live Firebase connection) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a href="index.html" class="brand-link">
+        <div class="brand-logo-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 2v20M2 12h20"/>
+          </svg>
+        </div>
+        <span>LifeTap</span>
+        <span class="brand-badge">Emergency ID</span>
+      </a>
+
+      <div>
+        <a href="index.html" class="btn btn-secondary btn-sm">
+          ← Back to Home
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="brand-logo-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 2v20M2 12h20"/>
+          </svg>
+        </div>
+        <h1 class="auth-title" id="auth-title">Welcome Back</h1>
+        <p class="auth-subtitle" id="auth-subtitle">Sign in to manage your medical emergency profile</p>
+      </div>
+
+      <!-- Mode Tabs -->
+      <div class="auth-tabs" id="auth-tabs">
+        <button class="auth-tab active" id="tab-login" type="button">Sign In</button>
+        <button class="auth-tab" id="tab-register" type="button">Register</button>
+      </div>
+
+      <!-- Feedback Alert -->
+      <div id="auth-alert" class="auth-alert"></div>
+
+      <!-- Authentication Form -->
+      <form id="auth-form">
+        <!-- Display Name (shown only during registration) -->
+        <div class="form-group" id="group-name" style="display:none;">
+          <label class="form-label" for="input-name">Full Name</label>
+          <input type="text" id="input-name" class="form-control" placeholder="e.g. Alex Morgan" autocomplete="name">
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label class="form-label" for="input-email">Email Address</label>
+          <input type="email" id="input-email" class="form-control" placeholder="you@example.com" required autocomplete="email">
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label class="form-label" for="input-password">Password</label>
+            <a href="#" id="link-forgot" class="forgot-password-link">Forgot?</a>
+          </div>
+          <input type="password" id="input-password" class="form-control" placeholder="••••••••" required minlength="6" autocomplete="current-password">
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="btn-submit" style="margin-top:1.5rem;">
+          <span id="btn-text">Sign In</span>
+          <span id="btn-spinner" style="display:none;">⏳ Loading...</span>
+        </button>
+      </form>
+
+      <!-- Password Reset Form (initially hidden) -->
+      <div id="reset-section" style="display:none; margin-top:1.5rem;">
+        <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:0.5rem;">Reset Your Password</h3>
+        <p style="font-size:0.85rem; color:var(--color-muted); margin-bottom:1rem;">Enter your email to receive recovery instructions.</p>
+        <div class="form-group">
+          <input type="email" id="input-reset-email" class="form-control" placeholder="you@example.com">
+        </div>
+        <div style="display:flex; gap:0.5rem;">
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-cancel-reset">Cancel</button>
+          <button type="button" class="btn btn-primary btn-sm" id="btn-send-reset">Send Reset Link</button>
+        </div>
+      </div>
+
+      <!-- Auth Footer -->
+      <div class="auth-footer" id="auth-footer-text">
+        <span>Don't have an ID yet? </span>
+        <a href="#" id="link-toggle-mode" style="font-weight:600;">Create an account</a>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { renderFirebaseBanner, showToast } from './js/firebase-config.js';
+    import { authService } from './js/auth.js';
+
+    renderFirebaseBanner();
+
+    // Check if already authenticated
+    const currentUser = authService.getCurrentUser();
+    if (currentUser) {
+      window.location.href = 'dashboard.html';
+    }
+
+    // State
+    let currentMode = 'login'; // 'login' or 'register'
+
+    const titleEl = document.getElementById('auth-title');
+    const subtitleEl = document.getElementById('auth-subtitle');
+    const tabLogin = document.getElementById('tab-login');
+    const tabRegister = document.getElementById('tab-register');
+    const groupName = document.getElementById('group-name');
+    const inputName = document.getElementById('input-name');
+    const inputEmail = document.getElementById('input-email');
+    const inputPassword = document.getElementById('input-password');
+    const authForm = document.getElementById('auth-form');
+    const btnSubmit = document.getElementById('btn-submit');
+    const btnText = document.getElementById('btn-text');
+    const btnSpinner = document.getElementById('btn-spinner');
+    const authAlert = document.getElementById('auth-alert');
+    const linkToggleMode = document.getElementById('link-toggle-mode');
+    const authFooterText = document.getElementById('auth-footer-text');
+    const linkForgot = document.getElementById('link-forgot');
+    const resetSection = document.getElementById('reset-section');
+    const btnCancelReset = document.getElementById('btn-cancel-reset');
+    const btnSendReset = document.getElementById('btn-send-reset');
+    const inputResetEmail = document.getElementById('input-reset-email');
+
+    // Parse URL parameter ?mode=register
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('mode') === 'register') {
+      setMode('register');
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      hideAlert();
+      resetSection.style.display = 'none';
+      authForm.style.display = 'block';
+
+      if (mode === 'register') {
+        tabRegister.classList.add('active');
+        tabLogin.classList.remove('active');
+        titleEl.textContent = 'Create Emergency ID';
+        subtitleEl.textContent = 'Set up your medical profile and emergency contacts';
+        groupName.style.display = 'block';
+        inputName.required = true;
+        btnText.textContent = 'Create LifeTap ID';
+        authFooterText.innerHTML = `Already have an ID? <a href="#" id="link-to-login" style="font-weight:600;">Sign in here</a>`;
+        document.getElementById('link-to-login').onclick = (e) => { e.preventDefault(); setMode('login'); };
+      } else {
+        tabLogin.classList.add('active');
+        tabRegister.classList.remove('active');
+        titleEl.textContent = 'Welcome Back';
+        subtitleEl.textContent = 'Sign in to manage your medical emergency profile';
+        groupName.style.display = 'none';
+        inputName.required = false;
+        btnText.textContent = 'Sign In';
+        authFooterText.innerHTML = `Don't have an ID yet? <a href="#" id="link-to-register" style="font-weight:600;">Create an account</a>`;
+        document.getElementById('link-to-register').onclick = (e) => { e.preventDefault(); setMode('register'); };
+      }
+    }
+
+    tabLogin.addEventListener('click', () => setMode('login'));
+    tabRegister.addEventListener('click', () => setMode('register'));
+    linkToggleMode.addEventListener('click', (e) => {
+      e.preventDefault();
+      setMode(currentMode === 'login' ? 'register' : 'login');
+    });
+
+    // Password reset toggle
+    linkForgot.addEventListener('click', (e) => {
+      e.preventDefault();
+      authForm.style.display = 'none';
+      resetSection.style.display = 'block';
+      inputResetEmail.value = inputEmail.value;
+    });
+
+    btnCancelReset.addEventListener('click', () => {
+      resetSection.style.display = 'none';
+      authForm.style.display = 'block';
+    });
+
+    btnSendReset.addEventListener('click', async () => {
+      const email = inputResetEmail.value.trim();
+      if (!email) {
+        showAlert('Please enter your email address.', 'error');
+        return;
+      }
+      try {
+        await authService.resetPassword(email);
+        showAlert('Password reset link sent to your email! Check your inbox.', 'success');
+        setTimeout(() => {
+          resetSection.style.display = 'none';
+          authForm.style.display = 'block';
+        }, 3000);
+      } catch (err) {
+        showAlert(err.message, 'error');
+      }
+    });
+
+    function showAlert(msg, type = 'error') {
+      authAlert.textContent = msg;
+      authAlert.className = `auth-alert ${type}`;
+    }
+
+    function hideAlert() {
+      authAlert.className = 'auth-alert';
+      authAlert.style.display = 'none';
+    }
+
+    function setLoading(isLoading) {
+      btnSubmit.disabled = isLoading;
+      btnText.style.display = isLoading ? 'none' : 'inline';
+      btnSpinner.style.display = isLoading ? 'inline' : 'none';
+    }
+
+    // Submit handler
+    authForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideAlert();
+      setLoading(true);
+
+      const email = inputEmail.value.trim();
+      const password = inputPassword.value;
+      const displayName = inputName.value.trim();
+
+      try {
+        if (currentMode === 'register') {
+          await authService.register(email, password, displayName);
+          showToast('Account created successfully! Welcome to LifeTap.', 'success');
+        } else {
+          await authService.login(email, password);
+          showToast('Signed in successfully.', 'success');
+        }
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 500);
+      } catch (err) {
+        showAlert(err.message || 'Authentication failed. Please check your credentials.', 'error');
+        setLoading(false);
+      }
+    });
+  </script>
+</body>
+</html>

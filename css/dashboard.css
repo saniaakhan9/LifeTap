@@ -1,0 +1,290 @@
+/* ==========================================================================
+   LifeTap: Smart Emergency ID — Dashboard Styles
+   ========================================================================== */
+
+.dashboard-container {
+  padding: 2.5rem 1.5rem 4rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dashboard-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.user-welcome h1 {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--color-dark);
+  letter-spacing: -0.02em;
+}
+
+.user-welcome p {
+  color: var(--color-muted);
+  font-size: 0.95rem;
+}
+
+/* Status Bar & Quick Stats */
+.dashboard-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.stat-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.stat-icon.red {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.stat-icon.green {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.stat-icon.blue {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.stat-meta {
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.stat-value {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--color-dark);
+}
+
+.progress-track {
+  width: 100%;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 99px;
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+/* Dashboard Tabs Navigation */
+.dash-tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--color-border);
+  margin-bottom: 2rem;
+  overflow-x: auto;
+}
+
+.dash-tab-btn {
+  padding: 0.85rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.dash-tab-btn:hover {
+  color: var(--color-dark);
+}
+
+.dash-tab-btn.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+/* Tab Panels */
+.tab-panel {
+  display: none;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+/* QR Center Panel */
+.qr-center-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.qr-preview-box {
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+}
+
+.qr-code-holder {
+  background: #ffffff;
+  padding: 1.25rem;
+  border: 2px dashed #cbd5e1;
+  border-radius: var(--radius-lg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.token-pill {
+  background: #f1f5f9;
+  font-family: var(--font-family-mono);
+  font-size: 0.85rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-sm);
+  color: #334155;
+  display: inline-block;
+  margin-bottom: 1.25rem;
+  word-break: break-all;
+}
+
+/* Printable Emergency ID Card Container */
+.id-card-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.wallet-card-preview {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  border: 2px solid #dc2626;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.12);
+  position: relative;
+}
+
+.wallet-card-header {
+  background: #dc2626;
+  color: #ffffff;
+  padding: 0.85rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wallet-card-header strong {
+  font-size: 1.15rem;
+  letter-spacing: 0.05em;
+}
+
+.wallet-card-body {
+  padding: 1.25rem;
+  display: grid;
+  grid-template-columns: 1fr 125px;
+  gap: 1rem;
+  align-items: center;
+}
+
+.card-info-item {
+  margin-bottom: 0.65rem;
+}
+
+.card-info-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  letter-spacing: 0.04em;
+}
+
+.card-info-val {
+  font-size: 0.925rem;
+  font-weight: 700;
+  color: var(--color-dark);
+}
+
+.card-qr-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wallet-card-footer {
+  background: #fef2f2;
+  border-top: 1px solid #fee2e2;
+  padding: 0.65rem 1.25rem;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #b91c1c;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 860px) {
+  .dashboard-stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .qr-center-grid {
+    grid-template-columns: 1fr;
+  }
+  .wallet-card-body {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  .card-qr-box {
+    margin: 0 auto;
+  }
+}

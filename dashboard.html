@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard — LifeTap Smart Emergency ID</title>
+  <meta name="description" content="Manage your LifeTap emergency medical profile, privacy controls, and QR code token.">
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/print-card.css">
+
+  <!-- QRCode.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <!-- Optional Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a href="index.html" class="brand-link">
+        <div class="brand-logo-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 2v20M2 12h20"/>
+          </svg>
+        </div>
+        <span>LifeTap</span>
+        <span class="brand-badge">Dashboard</span>
+      </a>
+
+      <div style="display:flex; align-items:center; gap:1rem;">
+        <a href="#" id="btn-header-view-emergency" class="btn btn-outline-danger btn-sm" target="_blank">
+          🚨 View Public Emergency Page
+        </a>
+        <button id="btn-logout" class="btn btn-secondary btn-sm">
+          Sign Out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard-container">
+    <!-- Top Welcome Banner -->
+    <div class="dashboard-topbar">
+      <div class="user-welcome">
+        <h1 id="user-display-name">Hello, Member</h1>
+        <p>Keep your emergency contacts and medical information accurate and up to date.</p>
+      </div>
+      <div style="display:flex; gap:0.75rem;">
+        <button class="btn btn-primary btn-sm" id="btn-quick-print">
+          🖨️ Print Wallet ID Card
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick Stats Grid -->
+    <div class="dashboard-stats-grid">
+      <!-- Profile Completion -->
+      <div class="stat-card">
+        <div class="stat-icon red">📋</div>
+        <div class="stat-meta">
+          <div class="stat-label">Profile Completion</div>
+          <div class="stat-value" id="stat-completeness">0%</div>
+          <div class="progress-track">
+            <div class="progress-fill" id="stat-progress-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QR Status -->
+      <div class="stat-card">
+        <div class="stat-icon green" id="stat-qr-icon">🛡️</div>
+        <div class="stat-meta">
+          <div class="stat-label">QR Token Status</div>
+          <div class="stat-value" id="stat-qr-status">Active</div>
+          <div style="font-size:0.8rem; color:var(--color-muted); margin-top:0.25rem;">
+            Token: <code id="stat-token-id" style="font-family:monospace; color:var(--color-primary);">Generating...</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- Emergency Contacts -->
+      <div class="stat-card">
+        <div class="stat-icon blue">📞</div>
+        <div class="stat-meta">
+          <div class="stat-label">Primary Contact</div>
+          <div class="stat-value" id="stat-primary-contact" style="font-size:1.15rem; font-weight:700;">Not Added</div>
+          <div style="font-size:0.8rem; color:var(--color-muted); margin-top:0.25rem;" id="stat-contact-phone">Add phone number</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard Tabs -->
+    <div class="dash-tabs" id="dash-tabs">
+      <button class="dash-tab-btn active" data-tab="tab-profile">
+        <span>👤</span> Emergency Profile
+      </button>
+      <button class="dash-tab-btn" data-tab="tab-privacy">
+        <span>🔒</span> Privacy Controls
+      </button>
+      <button class="dash-tab-btn" data-tab="tab-qr">
+        <span>📱</span> QR Code Center
+      </button>
+      <button class="dash-tab-btn" data-tab="tab-card">
+        <span>🖨️</span> Printable ID Card
+      </button>
+    </div>
+
+    <!-- TAB 1: Emergency Profile -->
+    <div class="tab-panel active" id="tab-profile">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <span>🩺</span> Medical & Emergency Details
+          </h2>
+          <span style="font-size:0.85rem; color:var(--color-muted);">Public visibility is controlled in Privacy tab</span>
+        </div>
+
+        <form id="profile-form">
+          <!-- Personal Info -->
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="prof-fullName">Full Legal Name *</label>
+              <input type="text" id="prof-fullName" class="form-control" placeholder="Alex Morgan" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="prof-bloodGroup">Blood Group *</label>
+              <select id="prof-bloodGroup" class="form-control" required>
+                <option value="">Select Blood Group</option>
+                <option value="A+">A Positive (A+)</option>
+                <option value="A-">A Negative (A-)</option>
+                <option value="B+">B Positive (B+)</option>
+                <option value="B-">B Negative (B-)</option>
+                <option value="AB+">AB Positive (AB+)</option>
+                <option value="AB-">AB Negative (AB-)</option>
+                <option value="O+">O Positive (O+)</option>
+                <option value="O-">O Negative (O-)</option>
+                <option value="Unknown">Unknown</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Medical Alerts & Allergies -->
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="prof-allergies">
+                Critical Allergies *
+                <span class="form-label-hint">(Food, drug, latex, insect stings)</span>
+              </label>
+              <input type="text" id="prof-allergies" class="form-control" placeholder="e.g. Penicillin, Peanuts (Carries EpiPen)">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="prof-conditions">
+                Medical Conditions / Alerts
+                <span class="form-label-hint">(Asthma, Diabetes, Cardiac, etc.)</span>
+              </label>
+              <input type="text" id="prof-conditions" class="form-control" placeholder="e.g. Type 1 Diabetes, Asthma, Pacemaker">
+            </div>
+          </div>
+
+          <!-- Medications & Organ Donor -->
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="prof-medications">Current Prescriptions / Medications</label>
+              <input type="text" id="prof-medications" class="form-control" placeholder="e.g. Insulin, Blood thinners, Albuterol">
+            </div>
+
+            <div class="form-group" style="display:flex; align-items:center; gap:0.75rem; margin-top:1.85rem;">
+              <input type="checkbox" id="prof-isOrganDonor" style="width:18px; height:18px; cursor:pointer;">
+              <label for="prof-isOrganDonor" style="font-weight:600; cursor:pointer; font-size:0.95rem;">
+                ❤️ I am a registered Organ Donor
+              </label>
+            </div>
+          </div>
+
+          <!-- Emergency Contact 1 -->
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;">
+            <h4 style="font-size:0.95rem; font-weight:700; color:#dc2626; margin-bottom:0.75rem;">
+              🚨 Primary Emergency Contact (Required)
+            </h4>
+            <div class="form-grid-2">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" for="prof-c1-name">Contact Name & Relationship *</label>
+                <input type="text" id="prof-c1-name" class="form-control" placeholder="e.g. Sarah Morgan (Spouse)" required>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" for="prof-c1-phone">Contact Phone Number *</label>
+                <input type="tel" id="prof-c1-phone" class="form-control" placeholder="+1 (555) 000-0000" required>
+              </div>
+            </div>
+          </div>
+
+          <!-- Emergency Contact 2 -->
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;">
+            <h4 style="font-size:0.95rem; font-weight:700; color:var(--color-dark); margin-bottom:0.75rem;">
+              👥 Secondary Emergency Contact (Optional)
+            </h4>
+            <div class="form-grid-2">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" for="prof-c2-name">Contact Name & Relationship</label>
+                <input type="text" id="prof-c2-name" class="form-control" placeholder="e.g. Dr. Robert Chen (Physician)">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" for="prof-c2-phone">Contact Phone Number</label>
+                <input type="tel" id="prof-c2-phone" class="form-control" placeholder="+1 (555) 111-2222">
+              </div>
+            </div>
+          </div>
+
+          <!-- Special Emergency Instructions -->
+          <div class="form-group">
+            <label class="form-label" for="prof-instructions">
+              Emergency Instructions for First Responders *
+            </label>
+            <textarea id="prof-instructions" class="form-control" rows="3" placeholder="e.g. If unconscious, do not administer sugar. EpiPen is stored in front pocket of backpack."></textarea>
+          </div>
+
+          <div style="display:flex; justify-content:flex-end;">
+            <button type="submit" class="btn btn-primary btn-lg" id="btn-save-profile">
+              💾 Save Profile & Update QR
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- TAB 2: Privacy Settings -->
+    <div class="tab-panel" id="tab-privacy">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <span>🛡️</span> Privacy & Public Exposure Controls
+          </h2>
+          <span class="badge badge-info">Zero Raw Leak</span>
+        </div>
+        <p style="color:var(--color-muted); font-size:0.9rem; margin-bottom:1.5rem;">
+          Choose exactly what emergency responders can view when they scan your QR code. Unchecked fields remain strictly encrypted and confidential in your private account.
+        </p>
+
+        <form id="privacy-form">
+          <label class="switch-label">
+            <div class="switch-info">
+              <span class="switch-title">Display Full Name</span>
+              <span class="switch-desc">Allows responders to verify your identity. If disabled, displays as "Anonymous Individual".</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="priv-showFullName" checked>
+              <span class="slider"></span>
+            </label>
+          </label>
+
+          <label class="switch-label">
+            <div class="switch-info">
+              <span class="switch-title">Display Blood Group</span>
+              <span class="switch-desc">Vital for trauma surgeons and emergency blood transfusions.</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="priv-showBloodGroup" checked>
+              <span class="slider"></span>
+            </label>
+          </label>
+
+          <label class="switch-label">
+            <div class="switch-info">
+              <span class="switch-title">Display Critical Allergies</span>
+              <span class="switch-desc">Prevents responders from administering lethal medication (e.g., penicillin).</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="priv-showAllergies" checked>
+              <span class="slider"></span>
+            </label>
+          </label>
+
+          <label class="switch-label">
+            <div class="switch-info">
+              <span class="switch-title">Display Medical Conditions</span>
+              <span class="switch-desc">Alerts medics to diabetes, epilepsy, pacemaker, asthma, etc.</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="priv-showConditions" checked>
+              <span class="slider"></span>
+            </label>
+          </label>
+
+          <label class="switch-label">
+            <div class="switch-info">
+              <span class="switch-title">Display Current Medications</span>
+              <span class="switch-desc">Helps physicians avoid adverse drug interactions.</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="priv-showMedications" checked>
+              <span class="slider"></span>
+            </label>
+          </label>
+
+          <label class="switch-label">
+            <div class="switch-info">
+              <span class="switch-title">Display Secondary Emergency Contact</span>
+              <span class="switch-desc">Allows rescuers to see and call your backup contact or doctor.</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="priv-showContact2" checked>
+              <span class="slider"></span>
+            </label>
+          </label>
+
+          <label class="switch-label">
+            <div class="switch-info">
+              <span class="switch-title">Display First Responder Instructions</span>
+              <span class="switch-desc">Displays your custom notes (e.g. EpiPen location, DNR status).</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="priv-showInstructions" checked>
+              <span class="slider"></span>
+            </label>
+          </label>
+
+          <label class="switch-label">
+            <div class="switch-info">
+              <span class="switch-title">Display Organ Donor Status</span>
+              <span class="switch-desc">Displays a certified organ donor badge to hospital staff.</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="priv-showOrganDonor" checked>
+              <span class="slider"></span>
+            </label>
+          </label>
+
+          <div style="display:flex; justify-content:flex-end; margin-top:2rem;">
+            <button type="submit" class="btn btn-primary" id="btn-save-privacy">
+              🔒 Save Privacy Preferences
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- TAB 3: QR Code Center -->
+    <div class="tab-panel" id="tab-qr">
+      <div class="qr-center-grid">
+        <!-- QR Box -->
+        <div class="qr-preview-box">
+          <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem;">Your Emergency QR</h3>
+          <div class="qr-code-holder">
+            <div id="dashboard-qr-canvas"></div>
+          </div>
+          <div class="token-pill" id="qr-token-display">Generating...</div>
+
+          <div style="display:flex; flex-direction:column; gap:0.75rem;">
+            <button class="btn btn-primary btn-block" id="btn-download-qr">
+              ⬇️ Download QR (PNG)
+            </button>
+            <a href="#" target="_blank" class="btn btn-secondary btn-block" id="btn-open-emergency-page">
+              🚨 Open Responder View
+            </a>
+            <button class="btn btn-secondary btn-sm btn-block" id="btn-copy-url">
+              📋 Copy Public URL
+            </button>
+          </div>
+        </div>
+
+        <!-- Management Controls -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">⚙️ Token Security & Status</h3>
+            <span class="badge badge-success" id="badge-qr-status">Active</span>
+          </div>
+
+          <div style="margin-bottom:2rem;">
+            <label class="switch-label" style="border:none; padding-bottom:0;">
+              <div class="switch-info">
+                <span class="switch-title">QR Code Status</span>
+                <span class="switch-desc">If deactivated, scanning this QR code displays a "Profile Suspended" message.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="switch-qr-active" checked>
+                <span class="slider"></span>
+              </label>
+            </label>
+          </div>
+
+          <div style="background:#fee2e2; border:1px solid #fecaca; border-radius:12px; padding:1.5rem;">
+            <h4 style="font-weight:700; color:#991b1b; margin-bottom:0.5rem; display:flex; align-items:center; gap:0.5rem;">
+              ⚠️ Revoke & Regenerate QR Token
+            </h4>
+            <p style="font-size:0.875rem; color:#7f1d1d; margin-bottom:1rem; line-height:1.5;">
+              If you lost a sticker, helmet tag, or printed card, you can immediately regenerate your token. 
+              <strong>This permanently revokes the old token</strong> and prevents anyone with your old QR code from viewing your information.
+            </p>
+            <button class="btn btn-danger btn-sm" id="btn-regenerate-token">
+              🔄 Invalidate & Generate New QR Code
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: Printable Emergency ID Card -->
+    <div class="tab-panel" id="tab-card">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <span>🖨️</span> Printable Wallet Emergency ID Card
+          </h2>
+          <button class="btn btn-primary btn-sm" id="btn-print-card-tab">
+            Print Now
+          </button>
+        </div>
+        <p style="color:var(--color-muted); font-size:0.9rem; margin-bottom:1.5rem;">
+          Print this standard ISO CR80 wallet card on cardstock or photograph paper. Keep it in your wallet, motorcycle pouch, or kid's backpack.
+        </p>
+
+        <!-- Printable Area Wrapper -->
+        <div class="id-card-wrap">
+          <div id="printable-card-area">
+            <!-- Rendered by card-generator.js -->
+          </div>
+        </div>
+
+        <div style="text-align:center; margin-top:1.5rem;">
+          <p style="font-size:0.85rem; color:var(--color-muted);">
+            💡 Tip: Set printer margins to "None" and enable "Background Graphics" in your browser print dialog.
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <div style="display:flex; align-items:center; gap:0.75rem;">
+        <div class="brand-logo-icon" style="width:28px; height:28px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 2v20M2 12h20"/>
+          </svg>
+        </div>
+        <strong>LifeTap: Smart Emergency ID</strong>
+      </div>
+      <div>
+        <span>Logged in as: <strong id="footer-user-email">...</strong></span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Dashboard Controller Script -->
+  <script type="module">
+    import { renderFirebaseBanner, showToast } from './js/firebase-config.js';
+    import { authService } from './js/auth.js';
+    import { profileService } from './js/profile.js';
+    import { privacyService } from './js/privacy.js';
+    import { qrManager } from './js/qr-manager.js';
+    import { cardGenerator } from './js/card-generator.js';
+
+    renderFirebaseBanner();
+
+    // Guard: ensure user is authenticated
+    const currentUser = authService.requireAuth('auth.html');
+    if (!currentUser) {
+      throw new Error("Redirecting to login...");
+    }
+
+    // UI Elements
+    const userDisplayNameEl = document.getElementById('user-display-name');
+    const footerUserEmail = document.getElementById('footer-user-email');
+    const statCompleteness = document.getElementById('stat-completeness');
+    const statProgressFill = document.getElementById('stat-progress-fill');
+    const statQrIcon = document.getElementById('stat-qr-icon');
+    const statQrStatus = document.getElementById('stat-qr-status');
+    const statTokenId = document.getElementById('stat-token-id');
+    const statPrimaryContact = document.getElementById('stat-primary-contact');
+    const statContactPhone = document.getElementById('stat-contact-phone');
+    const badgeQrStatus = document.getElementById('badge-qr-status');
+    const switchQrActive = document.getElementById('switch-qr-active');
+    const qrTokenDisplay = document.getElementById('qr-token-display');
+    const btnDownloadQr = document.getElementById('btn-download-qr');
+    const btnOpenEmergency = document.getElementById('btn-open-emergency-page');
+    const btnHeaderEmergency = document.getElementById('btn-header-view-emergency');
+    const btnCopyUrl = document.getElementById('btn-copy-url');
+    const btnRegenerateToken = document.getElementById('btn-regenerate-token');
+    const btnLogout = document.getElementById('btn-logout');
+    const btnQuickPrint = document.getElementById('btn-quick-print');
+    const btnPrintCardTab = document.getElementById('btn-print-card-tab');
+
+    // Display user email & name
+    footerUserEmail.textContent = currentUser.email || 'Member';
+    userDisplayNameEl.textContent = `Hello, ${currentUser.displayName || currentUser.email.split('@')[0]}`;
+
+    // Tabs logic
+    const tabButtons = document.querySelectorAll('.dash-tab-btn');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.getAttribute('data-tab');
+        tabButtons.forEach(b => b.classList.remove('active'));
+        tabPanels.forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(targetId).classList.add('active');
+      });
+    });
+
+    // Logout
+    btnLogout.addEventListener('click', async () => {
+      await authService.logout();
+      window.location.href = 'index.html';
+    });
+
+    // Printing
+    btnQuickPrint.addEventListener('click', () => {
+      // switch to card tab and print
+      document.querySelector('[data-tab="tab-card"]').click();
+      setTimeout(() => cardGenerator.triggerPrint(), 150);
+    });
+    btnPrintCardTab.addEventListener('click', () => cardGenerator.triggerPrint());
+
+    // Current State
+    let profileData = null;
+    let privacyData = null;
+    let tokenRecord = null;
+
+    async function initializeDashboard() {
+      const uid = currentUser.uid;
+
+      // 1. Fetch Profile
+      profileData = await profileService.getProfile(uid) || {
+        fullName: currentUser.displayName || '',
+        bloodGroup: '',
+        allergies: '',
+        conditions: '',
+        medications: '',
+        emergencyContact1Name: '',
+        emergencyContact1Phone: '',
+        emergencyContact2Name: '',
+        emergencyContact2Phone: '',
+        instructions: '',
+        isOrganDonor: false
+      };
+      populateProfileForm(profileData);
+
+      // 2. Fetch Privacy
+      privacyData = await privacyService.getSettings(uid);
+      populatePrivacyForm(privacyData);
+
+      // 3. Ensure Token Record
+      tokenRecord = await qrManager.ensureUserToken(uid, profileData, privacyData);
+
+      // 4. Update UI
+      updateStatsAndQR();
+    }
+
+    function populateProfileForm(p) {
+      document.getElementById('prof-fullName').value = p.fullName || '';
+      document.getElementById('prof-bloodGroup').value = p.bloodGroup || '';
+      document.getElementById('prof-allergies').value = p.allergies || '';
+      document.getElementById('prof-conditions').value = p.conditions || '';
+      document.getElementById('prof-medications').value = p.medications || '';
+      document.getElementById('prof-isOrganDonor').checked = !!p.isOrganDonor;
+      document.getElementById('prof-c1-name').value = p.emergencyContact1Name || '';
+      document.getElementById('prof-c1-phone').value = p.emergencyContact1Phone || '';
+      document.getElementById('prof-c2-name').value = p.emergencyContact2Name || '';
+      document.getElementById('prof-c2-phone').value = p.emergencyContact2Phone || '';
+      document.getElementById('prof-instructions').value = p.instructions || '';
+    }
+
+    function populatePrivacyForm(s) {
+      document.getElementById('priv-showFullName').checked = s.showFullName !== false;
+      document.getElementById('priv-showBloodGroup').checked = s.showBloodGroup !== false;
+      document.getElementById('priv-showAllergies').checked = s.showAllergies !== false;
+      document.getElementById('priv-showConditions').checked = s.showConditions !== false;
+      document.getElementById('priv-showMedications').checked = s.showMedications !== false;
+      document.getElementById('priv-showContact2').checked = s.showContact2 !== false;
+      document.getElementById('priv-showInstructions').checked = s.showInstructions !== false;
+      document.getElementById('priv-showOrganDonor').checked = s.showOrganDonor !== false;
+    }
+
+    function updateStatsAndQR() {
+      // Completeness
+      const completeness = profileService.calculateCompleteness(profileData);
+      statCompleteness.textContent = `${completeness}%`;
+      statProgressFill.style.width = `${completeness}%`;
+
+      // Contacts
+      if (profileData.emergencyContact1Name) {
+        statPrimaryContact.textContent = profileData.emergencyContact1Name;
+        statContactPhone.textContent = profileData.emergencyContact1Phone || 'Phone missing';
+      } else {
+        statPrimaryContact.textContent = 'None Assigned';
+        statContactPhone.textContent = 'Add primary contact';
+      }
+
+      // QR Status & Render
+      if (tokenRecord) {
+        const isActive = tokenRecord.active !== false;
+        statTokenId.textContent = tokenRecord.tokenId;
+        qrTokenDisplay.textContent = tokenRecord.tokenId;
+        switchQrActive.checked = isActive;
+
+        if (isActive) {
+          statQrStatus.textContent = 'Active';
+          statQrStatus.style.color = '#16a34a';
+          statQrIcon.className = 'stat-icon green';
+          badgeQrStatus.textContent = 'Active';
+          badgeQrStatus.className = 'badge badge-success';
+        } else {
+          statQrStatus.textContent = 'Suspended';
+          statQrStatus.style.color = '#dc2626';
+          statQrIcon.className = 'stat-icon red';
+          badgeQrStatus.textContent = 'Suspended';
+          badgeQrStatus.className = 'badge badge-danger';
+        }
+
+        const emergencyUrl = qrManager.getEmergencyUrl(tokenRecord.tokenId);
+        btnOpenEmergency.href = emergencyUrl;
+        btnHeaderEmergency.href = emergencyUrl;
+
+        // Render QR in tab
+        const qrCanvas = document.getElementById('dashboard-qr-canvas');
+        qrManager.renderQRCode(qrCanvas, emergencyUrl, 180);
+
+        // Render Printable Card
+        cardGenerator.renderCard('printable-card-area', profileData, emergencyUrl);
+      }
+    }
+
+    // Save Profile Form
+    document.getElementById('profile-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btn-save-profile');
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      profileData = {
+        fullName: document.getElementById('prof-fullName').value,
+        bloodGroup: document.getElementById('prof-bloodGroup').value,
+        allergies: document.getElementById('prof-allergies').value,
+        conditions: document.getElementById('prof-conditions').value,
+        medications: document.getElementById('prof-medications').value,
+        isOrganDonor: document.getElementById('prof-isOrganDonor').checked,
+        emergencyContact1Name: document.getElementById('prof-c1-name').value,
+        emergencyContact1Phone: document.getElementById('prof-c1-phone').value,
+        emergencyContact2Name: document.getElementById('prof-c2-name').value,
+        emergencyContact2Phone: document.getElementById('prof-c2-phone').value,
+        instructions: document.getElementById('prof-instructions').value
+      };
+
+      try {
+        await profileService.saveProfile(currentUser.uid, profileData);
+        // Sync public token data
+        if (tokenRecord?.tokenId) {
+          await qrManager.syncTokenData(currentUser.uid, tokenRecord.tokenId, profileData, privacyData);
+        }
+        showToast('Emergency profile saved successfully!', 'success');
+        updateStatsAndQR();
+      } catch (err) {
+        showToast(err.message || 'Error saving profile', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '💾 Save Profile & Update QR';
+      }
+    });
+
+    // Save Privacy Form
+    document.getElementById('privacy-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btn-save-privacy');
+      btn.disabled = true;
+      btn.textContent = 'Updating...';
+
+      privacyData = {
+        showFullName: document.getElementById('priv-showFullName').checked,
+        showBloodGroup: document.getElementById('priv-showBloodGroup').checked,
+        showAllergies: document.getElementById('priv-showAllergies').checked,
+        showConditions: document.getElementById('priv-showConditions').checked,
+        showMedications: document.getElementById('priv-showMedications').checked,
+        showContact2: document.getElementById('priv-showContact2').checked,
+        showInstructions: document.getElementById('priv-showInstructions').checked,
+        showOrganDonor: document.getElementById('priv-showOrganDonor').checked
+      };
+
+      try {
+        await privacyService.saveSettings(currentUser.uid, privacyData);
+        if (tokenRecord?.tokenId) {
+          await qrManager.syncTokenData(currentUser.uid, tokenRecord.tokenId, profileData, privacyData);
+        }
+        showToast('Privacy preferences updated!', 'success');
+        updateStatsAndQR();
+      } catch (err) {
+        showToast('Failed to save privacy settings', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🔒 Save Privacy Preferences';
+      }
+    });
+
+    // Toggle QR active switch
+    switchQrActive.addEventListener('change', async () => {
+      if (!tokenRecord?.tokenId) return;
+      const willBeActive = switchQrActive.checked;
+      await qrManager.setTokenActive(currentUser.uid, tokenRecord.tokenId, willBeActive);
+      tokenRecord.active = willBeActive;
+      updateStatsAndQR();
+      showToast(willBeActive ? 'Emergency QR activated' : 'Emergency QR suspended', willBeActive ? 'success' : 'warning');
+    });
+
+    // Regenerate Token
+    btnRegenerateToken.addEventListener('click', async () => {
+      const confirmRegen = confirm("Are you sure you want to regenerate your token? This will permanently invalidate all existing printed stickers and cards!");
+      if (!confirmRegen) return;
+
+      btnRegenerateToken.disabled = true;
+      btnRegenerateToken.textContent = 'Regenerating...';
+
+      try {
+        tokenRecord = await qrManager.regenerateToken(currentUser.uid, profileData, privacyData, tokenRecord?.tokenId);
+        updateStatsAndQR();
+        showToast('New token generated! Please print and replace your old QR card.', 'success');
+      } catch (err) {
+        showToast('Error regenerating token', 'error');
+      } finally {
+        btnRegenerateToken.disabled = false;
+        btnRegenerateToken.textContent = '🔄 Invalidate & Generate New QR Code';
+      }
+    });
+
+    // Download QR as PNG
+    btnDownloadQr.addEventListener('click', () => {
+      const qrCanvas = document.getElementById('dashboard-qr-canvas');
+      qrManager.downloadQRCode(qrCanvas, `LifeTap-${tokenRecord?.tokenId || 'QR'}.png`);
+    });
+
+    // Copy emergency URL
+    btnCopyUrl.addEventListener('click', async () => {
+      if (tokenRecord?.tokenId) {
+        const url = qrManager.getEmergencyUrl(tokenRecord.tokenId);
+        await navigator.clipboard.writeText(url);
+        showToast('Emergency URL copied to clipboard!', 'success');
+      }
+    });
+
+    // Initialize
+    initializeDashboard();
+  </script>
+</body>
+</html>

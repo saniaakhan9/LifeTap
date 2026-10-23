@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Emergency Responder View — LifeTap</title>
+  <meta name="description" content="Immediate medical responder information and emergency contact access. No app installation required.">
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet.js Maps CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  
+  <!-- LifeTap Styles -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/emergency.css">
+
+  <!-- Leaflet.js Maps Script -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Optional Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body class="emergency-body">
+
+  <!-- High-Visibility Emergency Header -->
+  <header class="emergency-header">
+    <div class="emergency-header-inner">
+      <div class="emergency-alert-pulse">
+        <span class="pulse-beacon"></span>
+        <span>LifeTap Emergency ID</span>
+      </div>
+      <span class="badge" style="background:#ffffff; color:#dc2626; font-size:0.75rem; font-weight:800;">
+        FIRST RESPONDER VIEW
+      </span>
+    </div>
+  </header>
+
+  <main class="emergency-wrapper">
+    <!-- Loading Spinner State -->
+    <div id="emergency-loading" style="text-align:center; padding:4rem 1rem;">
+      <div style="font-size:2.5rem; margin-bottom:1rem; animation: pulseDot 1.5s infinite;">⏳</div>
+      <h2 style="font-size:1.35rem; font-weight:800; color:var(--color-dark); margin-bottom:0.5rem;">Accessing LifeTap Registry...</h2>
+      <p style="color:var(--color-muted); font-size:0.9rem;">Verifying secure medical emergency token</p>
+    </div>
+
+    <!-- Error State (Invalid/Deactivated) -->
+    <div id="emergency-error" class="status-error-screen" style="display:none;">
+      <div class="status-error-icon">⚠️</div>
+      <h2 class="status-error-title" id="error-title">Emergency ID Inactive</h2>
+      <p class="status-error-desc" id="error-desc">
+        This QR code token has been revoked or expired. Please check for a secondary contact number or call local emergency dispatch immediately.
+      </p>
+      <a href="tel:911" class="btn btn-primary btn-lg" style="box-shadow:var(--shadow-emergency);">
+        📞 Dial Emergency Services (911 / 112)
+      </a>
+    </div>
+
+    <!-- Active Responder Content -->
+    <div id="emergency-content" style="display:none;">
+
+      <!-- ONE-TAP DIRECT EMERGENCY CALL ACTION BAR -->
+      <div class="action-call-row">
+        <a href="#" id="resp-call-btn-1" class="btn-emergency-call">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+          </svg>
+          <span id="resp-call-text-1">Call Primary Emergency Contact</span>
+        </a>
+
+        <a href="#" id="resp-call-btn-2" class="btn-secondary-call" style="display:none;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+          </svg>
+          <span id="resp-call-text-2">Call Secondary Contact</span>
+        </a>
+      </div>
+
+      <!-- Patient Identity & Blood Type Hero -->
+      <div class="patient-card">
+        <div class="blood-group-badge-lg">
+          <span class="label">BLOOD</span>
+          <span class="val" id="resp-bloodVal">--</span>
+        </div>
+
+        <div class="patient-info">
+          <h1 class="patient-name" id="resp-fullName">Loading Name...</h1>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.4rem;">
+            <span class="badge badge-success">Verified Active ID</span>
+            <span class="badge badge-danger" id="resp-organDonor" style="display:none;">❤️ Organ Donor</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Critical Allergies Warning Box (Top priority) -->
+      <div class="alert-box-critical" id="resp-allergy-box">
+        <h3>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          CRITICAL ALLERGIES & ADVERSE REACTIONS
+        </h3>
+        <p id="resp-allergies">No known allergies reported.</p>
+      </div>
+
+      <!-- Medical Conditions -->
+      <div class="emergency-section" id="resp-section-conditions">
+        <div class="emergency-section-title">
+          <span>🩺</span> Medical Conditions & Alerts
+        </div>
+        <div class="emergency-section-content" id="resp-conditions">
+          None reported.
+        </div>
+      </div>
+
+      <!-- Current Medications -->
+      <div class="emergency-section" id="resp-section-meds">
+        <div class="emergency-section-title">
+          <span>💊</span> Current Prescriptions & Medications
+        </div>
+        <div class="emergency-section-content" id="resp-medications">
+          None reported.
+        </div>
+      </div>
+
+      <!-- First Responder Instructions -->
+      <div class="emergency-section" id="resp-section-instructions">
+        <div class="emergency-section-title">
+          <span>📝</span> Rescuer Instructions
+        </div>
+        <div class="emergency-section-content" id="resp-instructions" style="color:#b91c1c; font-weight:700;">
+          No custom instructions provided.
+        </div>
+      </div>
+
+      <!-- GPS Location Ping & Leaflet Map Card -->
+      <div class="location-card">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
+          <h3 style="font-size:1.05rem; font-weight:800; color:var(--color-dark); display:flex; align-items:center; gap:0.5rem;">
+            <span>📍</span> Incident Location & Dispatch
+          </h3>
+          <span class="badge badge-info">GPS Enabled</span>
+        </div>
+        <p style="font-size:0.875rem; color:var(--color-muted); line-height:1.5; margin-bottom:1rem;">
+          Capture your device GPS coordinates to show your exact incident location on a live Leaflet map and send coordinates directly to the family.
+        </p>
+
+        <button type="button" class="btn-ping-gps" id="btn-capture-location">
+          <span>📍</span>
+          <span>Share Incident GPS Location</span>
+        </button>
+
+        <div id="coords-badge" class="coords-badge"></div>
+        <div id="leaflet-map"></div>
+
+        <div class="quick-dispatch-row" id="dispatch-row" style="display:none;">
+          <a href="#" target="_blank" class="btn-dispatch btn-dispatch-whatsapp" id="btn-dispatch-whatsapp">
+            <span>💬 Send Location via WhatsApp</span>
+          </a>
+          <a href="#" class="btn-dispatch btn-dispatch-sms" id="btn-dispatch-sms">
+            <span>✉️ Send Location via SMS</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Disclaimer Footer -->
+      <div style="text-align:center; padding:1.5rem 0; font-size:0.8rem; color:var(--color-muted); border-top:1px solid #e2e8f0;">
+        <p>This medical information is provided voluntarily by the cardholder for emergency identification purposes only.</p>
+        <p style="margin-top:0.35rem; font-weight:600; color:var(--color-dark);">LifeTap • Powered by Tokenized Emergency IDs</p>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Script Modules -->
+  <script type="module">
+    import { initializeEmergencyResponderPage } from './js/emergency.js';
+    initializeEmergencyResponderPage();
+  </script>
+</body>
+</html>

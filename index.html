@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeTap — Smart Emergency ID | QR Medical Responder</title>
+  <meta name="description" content="LifeTap provides secure, QR-based smart emergency identification. Rescuers scan to see critical medical alerts, blood group, and call your emergency contacts without installing an app.">
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/landing.css">
+  
+  <!-- QRCode.js CDN for live preview demo -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a href="index.html" class="brand-link" id="nav-brand">
+        <div class="brand-logo-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M2 12h20"/>
+          </svg>
+        </div>
+        <span>LifeTap</span>
+        <span class="brand-badge">Emergency ID</span>
+      </a>
+
+      <button class="nav-toggle" id="nav-toggle-btn" aria-label="Toggle navigation">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+      <ul class="nav-links" id="nav-menu">
+        <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+        <li><a href="#features" class="nav-link">Safety Features</a></li>
+        <li><a href="emergency.html?token=demo-emergency-token-99" class="nav-link" id="nav-sample-demo" style="color:var(--color-primary); font-weight:600;">⚡ Live Scanner Demo</a></li>
+        <li id="nav-auth-slot">
+          <a href="auth.html" class="btn btn-secondary btn-sm" id="btn-nav-login">Sign In</a>
+        </li>
+        <li>
+          <a href="auth.html?mode=register" class="btn btn-primary btn-sm" id="btn-nav-get-started">Create Your ID</a>
+        </li>
+      </ul>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <div class="hero-badge-pill">
+            <span class="hero-pulse-dot"></span>
+            Critical Emergency Preparedness
+          </div>
+
+          <h1 class="hero-title">
+            Your Voice When You <br>
+            <span class="text-emergency">Cannot Speak.</span>
+          </h1>
+
+          <p class="hero-description">
+            LifeTap is a secure, QR-based smart emergency identification system. Rescuers scan your ID card or helmet sticker using any smartphone camera to instantly access life-saving medical details and dial your emergency contacts.
+          </p>
+
+          <div class="hero-cta-group">
+            <a href="auth.html?mode=register" class="btn btn-primary btn-lg" id="hero-cta-register">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="8.5" cy="7" r="4"></circle>
+                <line x1="20" y1="8" x2="20" y2="14"></line>
+                <line x1="23" y1="11" x2="17" y2="11"></line>
+              </svg>
+              Create Free Emergency ID
+            </a>
+
+            <a href="emergency.html?token=demo-emergency-token-99" class="btn btn-secondary btn-lg" id="hero-cta-demo">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+              Test Rescuer Scanner
+            </a>
+          </div>
+
+          <div class="hero-trust-row">
+            <div class="hero-trust-item">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>No App Required</span>
+            </div>
+            <div class="hero-trust-item">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>100% Privacy Control</span>
+            </div>
+            <div class="hero-trust-item">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>One-Tap Direct Dial</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero Preview Card -->
+        <div class="hero-preview-wrapper">
+          <div class="hero-preview-card">
+            <div class="preview-card-header">
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <span class="brand-logo-icon" style="width:28px; height:28px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M12 2v20M2 12h20"/>
+                  </svg>
+                </span>
+                <strong style="font-size:0.95rem; letter-spacing:0.02em;">LIFETAP SMART CARD</strong>
+              </div>
+              <span class="badge badge-danger">EMERGENCY PROFILE</span>
+            </div>
+
+            <div class="preview-identity-row">
+              <div class="preview-blood-circle">
+                <span class="preview-blood-label">BLOOD</span>
+                <span class="preview-blood-type">O+</span>
+              </div>
+              <div>
+                <h4 style="font-size:1.15rem; font-weight:700; color:var(--color-dark);">Alex Morgan</h4>
+                <p style="font-size:0.85rem; color:var(--color-muted);">ID Token: <code style="font-family:monospace; color:var(--color-primary);">lt_x89f2a</code></p>
+                <span class="badge badge-success" style="margin-top:0.35rem;">Status: Active</span>
+              </div>
+            </div>
+
+            <div class="preview-qr-sample">
+              <div id="hero-sample-qr" style="margin-bottom:0.75rem;"></div>
+              <p style="font-size:0.75rem; color:var(--color-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">
+                SCAN WITH SMARTPHONE CAMERA • NO APP NEEDED
+              </p>
+            </div>
+
+            <div class="preview-actions-demo">
+              <a href="tel:+15552345678" class="btn btn-primary btn-sm" style="font-size:0.8rem; pointer-events:none;">
+                📞 Call Spouse
+              </a>
+              <a href="emergency.html?token=demo-emergency-token-99" class="btn btn-secondary btn-sm" style="font-size:0.8rem;">
+                🚨 View Rescuer UI
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="section section-alt" id="how-it-works">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-subtitle">Seamless 3-Step Process</span>
+          <h2 class="section-title">How LifeTap Protects You</h2>
+          <p class="section-lead">Designed for split-second emergency response when every second counts.</p>
+        </div>
+
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-number">1</div>
+            <h3>Create Medical Profile</h3>
+            <p>Enter your blood group, critical allergies, medications, emergency contacts, and special instructions. You retain 100% control over which fields are visible to the public.</p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-number">2</div>
+            <h3>Generate & Print QR Card</h3>
+            <p>LifeTap generates an unpredictable, tokenized QR code. Download high-res stickers for your helmet, bike, or print a standard wallet-size emergency ID card with one click.</p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-number">3</div>
+            <h3>Instant Rescue & Location</h3>
+            <p>If you are incapacitated, any passerby or paramedic scans the QR. It instantly opens your emergency page in their browser to dial your family and ping your GPS location.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Key Features Grid -->
+    <section class="section" id="features">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-subtitle">Engineered for Emergencies</span>
+          <h2 class="section-title">Critical Features Built In</h2>
+          <p class="section-lead">Standard identification cards are static and outdated. LifeTap is dynamic, verifiable, and instant.</p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-box">
+            <div class="feature-icon-wrap">📲</div>
+            <h4>Zero App Friction</h4>
+            <p>First responders do not need an account, password, or proprietary app. Works directly via iPhone or Android standard camera.</p>
+          </div>
+
+          <div class="feature-box">
+            <div class="feature-icon-wrap">📞</div>
+            <h4>One-Tap Direct Dial</h4>
+            <p>Large, prominent emergency contact buttons trigger immediate phone calls to family or physicians without manual number typing.</p>
+          </div>
+
+          <div class="feature-box">
+            <div class="feature-icon-wrap">📍</div>
+            <h4>Incident GPS & Leaflet Map</h4>
+            <p>Rescuers can capture their live coordinates and dispatch pre-filled WhatsApp & SMS incident alerts with an interactive map link.</p>
+          </div>
+
+          <div class="feature-box">
+            <div class="feature-icon-wrap">🔒</div>
+            <h4>Tokenized Privacy</h4>
+            <p>Your raw medical data is never encoded inside the QR code image. Only a secure random token is stored, protecting you against leaks.</p>
+          </div>
+
+          <div class="feature-box">
+            <div class="feature-icon-wrap">⚡</div>
+            <h4>Instant QR Revocation</h4>
+            <p>Lost your wallet or sticker? Deactivate or regenerate your QR code with a single tap in your dashboard to immediately invalidate the old token.</p>
+          </div>
+
+          <div class="feature-box">
+            <div class="feature-icon-wrap">🖨️</div>
+            <h4>Printable Wallet ID Card</h4>
+            <p>Generate a professional, credit-card sized emergency card with standard ISO layout ready for plastic lamination or wallet sleeve.</p>
+          </div>
+        </div>
+
+        <!-- Banner CTA -->
+        <div class="cta-banner">
+          <h2>Be Prepared Before An Accident Happens</h2>
+          <p>Create your free LifeTap emergency profile in less than 2 minutes. Keep your family reachable and paramedics informed.</p>
+          <div style="display:flex; justify-content:center; gap:1rem; flex-wrap:wrap;">
+            <a href="auth.html?mode=register" class="btn btn-secondary btn-lg" style="background:#ffffff; color:#dc2626; font-weight:700;">
+              Get Started Now — It's Free
+            </a>
+            <a href="emergency.html?token=demo-emergency-token-99" class="btn btn-outline-danger btn-lg" style="background:rgba(255,255,255,0.15); color:#ffffff; border-color:#ffffff;">
+              View Live Demo
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <div style="display:flex; align-items:center; gap:0.75rem;">
+        <div class="brand-logo-icon" style="width:30px; height:30px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 2v20M2 12h20"/>
+          </svg>
+        </div>
+        <strong>LifeTap: Smart Emergency ID</strong>
+      </div>
+
+      <div class="footer-note">
+        <span>© 2026 LifeTap. Designed for life-saving speed.</span>
+      </div>
+
+      <div>
+        <a href="auth.html" style="margin-right:1.25rem; font-size:0.85rem; color:var(--color-muted);">Dashboard Login</a>
+        <a href="emergency.html?token=demo-emergency-token-99" style="font-size:0.85rem; color:var(--color-primary); font-weight:600;">Scanner Demo</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { renderFirebaseBanner } from './js/firebase-config.js';
+    import { authService } from './js/auth.js';
+
+    // Render environment status banner
+    renderFirebaseBanner();
+
+    // Mobile nav toggle
+    const toggleBtn = document.getElementById('nav-toggle-btn');
+    const menu = document.getElementById('nav-menu');
+    if (toggleBtn && menu) {
+      toggleBtn.addEventListener('click', () => menu.classList.toggle('active'));
+    }
+
+    // Check if user is already logged in to customize nav
+    const currentUser = authService.getCurrentUser();
+    if (currentUser) {
+      const authSlot = document.getElementById('nav-auth-slot');
+      if (authSlot) {
+        authSlot.innerHTML = `<a href="dashboard.html" class="btn btn-secondary btn-sm">My Dashboard</a>`;
+      }
+      const ctaBtn = document.getElementById('btn-nav-get-started');
+      if (ctaBtn) {
+        ctaBtn.textContent = 'Go to Dashboard';
+        ctaBtn.href = 'dashboard.html';
+      }
+    }
+
+    // Render hero sample QR code
+    window.addEventListener('DOMContentLoaded', () => {
+      const qrEl = document.getElementById('hero-sample-qr');
+      if (qrEl && window.QRCode) {
+        const demoUrl = `${window.location.origin}/emergency.html?token=demo-emergency-token-99`;
+        new QRCode(qrEl, {
+          text: demoUrl,
+          width: 140,
+          height: 140,
+          colorDark: "#0f172a",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }
+    });
+  </script>
+</body>
+</html>
