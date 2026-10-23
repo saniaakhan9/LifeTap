@@ -58,8 +58,33 @@ class LocalMockDatabase {
   }
 
   initDemoData() {
-    if (!localStorage.getItem(STORAGE_USERS_KEY)) {
-      localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify({}));
+    let users = JSON.parse(localStorage.getItem(STORAGE_USERS_KEY) || '{}');
+    const demoEmail = "demo@lifetap.com";
+    const demoUid = "demo_user_1";
+    if (!users[demoUid]) {
+      users[demoUid] = {
+        uid: demoUid,
+        email: demoEmail,
+        displayName: "Alex Morgan",
+        passwordHash: btoa("password123"),
+        createdAt: new Date().toISOString(),
+        profile: {
+          fullName: "Alex Morgan",
+          bloodGroup: "O+",
+          allergies: "Penicillin, Peanuts (Carries EpiPen)",
+          conditions: "Type 1 Diabetes, Asthma",
+          medications: "Insulin glargine, Albuterol inhaler",
+          emergencyContact1Name: "Sarah Morgan (Spouse)",
+          emergencyContact1Phone: "+1 (555) 234-5678",
+          emergencyContact2Name: "Dr. Robert Chen (Physician)",
+          emergencyContact2Phone: "+1 (555) 876-5432",
+          instructions: "In case of unconsciousness, administer glucagon or call 911 immediately. Inhaler is in left jacket pocket.",
+          isOrganDonor: true,
+          updatedAt: new Date().toISOString()
+        }
+      };
+      localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
+      localStorage.setItem(`lifetap_user_token_${demoUid}`, "demo-emergency-token-99");
     }
     if (!localStorage.getItem(STORAGE_TOKENS_KEY)) {
       // Seed a sample emergency token for immediate testing/demo

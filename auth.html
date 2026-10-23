@@ -62,6 +62,18 @@
         <button class="auth-tab" id="tab-register" type="button">Register</button>
       </div>
 
+      <!-- Demo Credentials Callout -->
+      <div style="background:#fef2f2; border:1px dashed #fca5a5; border-radius:10px; padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.825rem; color:#991b1b;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">
+          <strong style="display:flex; align-items:center; gap:0.35rem;">⚡ Demo Login Credentials:</strong>
+          <button type="button" id="btn-autofill-demo" style="background:#dc2626; color:#ffffff; border:none; padding:3px 8px; border-radius:5px; font-size:0.75rem; font-weight:700; cursor:pointer;">
+            1-Click Auto Fill
+          </button>
+        </div>
+        <div>Email: <code style="font-family:monospace; background:#fff; padding:1px 4px; border-radius:3px;">demo@lifetap.com</code></div>
+        <div>Password: <code style="font-family:monospace; background:#fff; padding:1px 4px; border-radius:3px;">password123</code></div>
+      </div>
+
       <!-- Feedback Alert -->
       <div id="auth-alert" class="auth-alert"></div>
 
@@ -193,6 +205,17 @@
       e.preventDefault();
       setMode(currentMode === 'login' ? 'register' : 'login');
     });
+
+    // Auto-fill demo credentials
+    const btnAutoFill = document.getElementById('btn-autofill-demo');
+    if (btnAutoFill) {
+      btnAutoFill.addEventListener('click', () => {
+        setMode('login');
+        inputEmail.value = 'demo@lifetap.com';
+        inputPassword.value = 'password123';
+        showToast('Demo credentials filled! Click Sign In.', 'info');
+      });
+    }
 
     // Password reset toggle
     linkForgot.addEventListener('click', (e) => {
