@@ -95,15 +95,22 @@
   gap: 0.45rem;
 }
 
-/* Interactive Hero Preview Card */
+/* Interactive Hero Preview Card (Glassmorphism) */
 .hero-preview-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
-  padding: 1.75rem;
-  box-shadow: var(--shadow-xl);
+  padding: 1.85rem;
+  box-shadow: var(--glass-shadow);
   position: relative;
-  transition: all var(--transition-base);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.hero-preview-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
 }
 
 .preview-card-header {
@@ -221,17 +228,20 @@
 }
 
 .step-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
   padding: 2.25rem 1.75rem;
   position: relative;
+  box-shadow: var(--glass-shadow);
   transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
 }
 
 .step-card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-xl);
   border-color: var(--color-primary);
 }
 
@@ -271,17 +281,20 @@
 }
 
 .feature-box {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   padding: 1.75rem;
+  box-shadow: var(--glass-shadow);
   transition: border-color var(--transition-fast), transform var(--transition-base), box-shadow var(--transition-base);
 }
 
 .feature-box:hover {
   border-color: var(--color-primary);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-xl);
 }
 
 .feature-icon-wrap {

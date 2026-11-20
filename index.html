@@ -7,13 +7,17 @@
   <meta name="description" content="LifeTap provides secure, QR-based smart emergency identification. Rescuers scan to see critical medical alerts, blood group, and call your emergency contacts without installing an app.">
   <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
   
-  <!-- Instant Theme Initializer (prevents FOUC) -->
+  <!-- Instant Theme Initializer & Controller (prevents FOUC) -->
   <script>
     (function(){
-      const t = localStorage.getItem('lifetap-theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-      document.documentElement.setAttribute('data-theme', t);
+      try {
+        var t = localStorage.getItem('lifetap-theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', t);
+        if (t === 'dark') document.documentElement.classList.add('dark');
+      } catch (e) {}
     })();
   </script>
+  <script type="module" src="js/theme.js"></script>
 
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,6 +46,18 @@
         <span class="brand-badge">Emergency ID</span>
       </a>
 
+      <ul class="nav-links" id="nav-menu">
+        <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+        <li><a href="#features" class="nav-link">Safety Features</a></li>
+        <li><a href="emergency.html?token=demo-emergency-token-99" class="nav-link" id="nav-sample-demo" style="color:var(--color-primary); font-weight:600;">⚡ Live Scanner Demo</a></li>
+        <li id="nav-auth-slot">
+          <a href="auth.html" class="btn btn-secondary btn-sm" id="btn-nav-login">Sign In</a>
+        </li>
+        <li>
+          <a href="auth.html?mode=register" class="btn btn-primary btn-sm" id="btn-nav-get-started">Create Your ID</a>
+        </li>
+      </ul>
+
       <div class="header-actions">
         <button type="button" class="btn-theme-toggle" aria-label="Toggle theme" title="Toggle theme">
           <span class="theme-toggle-icon">🌙</span>
@@ -55,18 +71,6 @@
           </svg>
         </button>
       </div>
-
-      <ul class="nav-links" id="nav-menu">
-        <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
-        <li><a href="#features" class="nav-link">Safety Features</a></li>
-        <li><a href="emergency.html?token=demo-emergency-token-99" class="nav-link" id="nav-sample-demo" style="color:var(--color-primary); font-weight:600;">⚡ Live Scanner Demo</a></li>
-        <li id="nav-auth-slot">
-          <a href="auth.html" class="btn btn-secondary btn-sm" id="btn-nav-login">Sign In</a>
-        </li>
-        <li>
-          <a href="auth.html?mode=register" class="btn btn-primary btn-sm" id="btn-nav-get-started">Create Your ID</a>
-        </li>
-      </ul>
     </div>
   </header>
 

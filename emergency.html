@@ -7,13 +7,17 @@
   <meta name="description" content="Immediate medical responder information and emergency contact access. No app installation required.">
   <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
   
-  <!-- Instant Theme Initializer (prevents FOUC) -->
+  <!-- Instant Theme Initializer & Controller (prevents FOUC) -->
   <script>
     (function(){
-      const t = localStorage.getItem('lifetap-theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-      document.documentElement.setAttribute('data-theme', t);
+      try {
+        var t = localStorage.getItem('lifetap-theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', t);
+        if (t === 'dark') document.documentElement.classList.add('dark');
+      } catch (e) {}
     })();
   </script>
+  <script type="module" src="js/theme.js"></script>
 
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,7 +48,7 @@
         <span>LifeTap Emergency ID</span>
       </div>
       <div style="display:flex; align-items:center; gap:0.65rem;">
-        <button type="button" class="btn-theme-toggle" aria-label="Toggle theme" title="Toggle theme" style="background:rgba(255,255,255,0.2); border-color:rgba(255,255,255,0.4); color:#ffffff; width:34px; height:34px;">
+        <button type="button" class="btn-theme-toggle" aria-label="Toggle theme" title="Toggle theme">
           <span class="theme-toggle-icon">🌙</span>
         </button>
         <span class="badge" style="background:#ffffff; color:#dc2626; font-size:0.75rem; font-weight:800;">
