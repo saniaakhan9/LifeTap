@@ -143,12 +143,12 @@
           <span style="font-size:0.85rem; color:var(--color-muted);">Public visibility is controlled in Privacy tab</span>
         </div>
 
-        <form id="profile-form">
+        <form id="profile-form" autocomplete="off">
           <!-- Personal Info -->
           <div class="form-grid-2">
             <div class="form-group">
               <label class="form-label" for="prof-fullName">Full Legal Name *</label>
-              <input type="text" id="prof-fullName" class="form-control" placeholder="Alex Morgan" required>
+              <input type="text" id="prof-fullName" class="form-control" placeholder="Enter your full legal name" autocomplete="off" required>
             </div>
 
             <div class="form-group">
@@ -175,7 +175,7 @@
                 Critical Allergies *
                 <span class="form-label-hint">(Food, drug, latex, insect stings)</span>
               </label>
-              <input type="text" id="prof-allergies" class="form-control" placeholder="e.g. Penicillin, Peanuts (Carries EpiPen)">
+              <input type="text" id="prof-allergies" class="form-control" placeholder="Enter known allergies, or 'None'" autocomplete="off">
             </div>
 
             <div class="form-group">
@@ -183,7 +183,7 @@
                 Medical Conditions / Alerts
                 <span class="form-label-hint">(Asthma, Diabetes, Cardiac, etc.)</span>
               </label>
-              <input type="text" id="prof-conditions" class="form-control" placeholder="e.g. Type 1 Diabetes, Asthma, Pacemaker">
+              <input type="text" id="prof-conditions" class="form-control" placeholder="Enter medical conditions, or 'None'" autocomplete="off">
             </div>
           </div>
 
@@ -191,7 +191,7 @@
           <div class="form-grid-2">
             <div class="form-group">
               <label class="form-label" for="prof-medications">Current Prescriptions / Medications</label>
-              <input type="text" id="prof-medications" class="form-control" placeholder="e.g. Insulin, Blood thinners, Albuterol">
+              <input type="text" id="prof-medications" class="form-control" placeholder="Enter current medications, or 'None'" autocomplete="off">
             </div>
 
             <div class="form-group" style="display:flex; align-items:center; gap:0.75rem; margin-top:1.85rem;">
@@ -210,11 +210,11 @@
             <div class="form-grid-2">
               <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label" for="prof-c1-name">Contact Name & Relationship *</label>
-                <input type="text" id="prof-c1-name" class="form-control" placeholder="e.g. Sarah Morgan (Spouse)" required>
+                <input type="text" id="prof-c1-name" class="form-control" placeholder="Full name & relationship" autocomplete="off" required>
               </div>
               <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label" for="prof-c1-phone">Contact Phone Number *</label>
-                <input type="tel" id="prof-c1-phone" class="form-control" placeholder="+1 (555) 000-0000" required>
+                <input type="tel" id="prof-c1-phone" class="form-control" placeholder="Phone number with country code" autocomplete="off" required>
               </div>
             </div>
           </div>
@@ -227,11 +227,11 @@
             <div class="form-grid-2">
               <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label" for="prof-c2-name">Contact Name & Relationship</label>
-                <input type="text" id="prof-c2-name" class="form-control" placeholder="e.g. Dr. Robert Chen (Physician)">
+                <input type="text" id="prof-c2-name" class="form-control" placeholder="Full name & relationship (optional)" autocomplete="off">
               </div>
               <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label" for="prof-c2-phone">Contact Phone Number</label>
-                <input type="tel" id="prof-c2-phone" class="form-control" placeholder="+1 (555) 111-2222">
+                <input type="tel" id="prof-c2-phone" class="form-control" placeholder="Phone number (optional)" autocomplete="off">
               </div>
             </div>
           </div>
@@ -241,7 +241,7 @@
             <label class="form-label" for="prof-instructions">
               Emergency Instructions for First Responders *
             </label>
-            <textarea id="prof-instructions" class="form-control" rows="3" placeholder="e.g. If unconscious, do not administer sugar. EpiPen is stored in front pocket of backpack."></textarea>
+            <textarea id="prof-instructions" class="form-control" rows="3" placeholder="Critical instructions for first responders..." autocomplete="off"></textarea>
           </div>
 
           <div style="display:flex; justify-content:flex-end;">

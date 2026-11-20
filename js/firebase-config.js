@@ -328,9 +328,12 @@ export function showToast(message, type = 'info') {
 }
 
 /**
- * Render standard Firebase status banner to guide the user
+ * Render standard Firebase status banner (only if ?debug=1 or in development)
  */
 export function renderFirebaseBanner() {
+  const isDebug = typeof window !== 'undefined' && window.location.search.includes('debug=1');
+  if (!isDebug) return;
+
   const isLive = isLiveFirebaseConfigured();
   const existing = document.getElementById('lifetap-firebase-status-banner');
   if (existing) existing.remove();

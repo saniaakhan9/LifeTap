@@ -77,33 +77,21 @@
         <button class="auth-tab" id="tab-register" type="button">Register</button>
       </div>
 
-      <!-- Demo Credentials Callout -->
-      <div style="background:var(--color-primary-subtle); border:1px dashed var(--color-primary-light); border-radius:10px; padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.825rem; color:var(--color-dark);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">
-          <strong style="display:flex; align-items:center; gap:0.35rem; color:var(--color-primary);">⚡ Demo Login Credentials:</strong>
-          <button type="button" id="btn-autofill-demo" style="background:var(--color-primary); color:#ffffff; border:none; padding:3px 8px; border-radius:5px; font-size:0.75rem; font-weight:700; cursor:pointer;">
-            1-Click Auto Fill
-          </button>
-        </div>
-        <div>Email: <code style="font-family:monospace; background:var(--color-surface); color:var(--color-primary); padding:1px 6px; border-radius:4px; border:1px solid var(--color-border);">demo@lifetap.com</code></div>
-        <div style="margin-top:2px;">Password: <code style="font-family:monospace; background:var(--color-surface); color:var(--color-primary); padding:1px 6px; border-radius:4px; border:1px solid var(--color-border);">password123</code></div>
-      </div>
-
       <!-- Feedback Alert -->
       <div id="auth-alert" class="auth-alert"></div>
 
       <!-- Authentication Form -->
-      <form id="auth-form">
+      <form id="auth-form" autocomplete="off">
         <!-- Display Name (shown only during registration) -->
         <div class="form-group" id="group-name" style="display:none;">
           <label class="form-label" for="input-name">Full Name</label>
-          <input type="text" id="input-name" class="form-control" placeholder="e.g. Alex Morgan" autocomplete="name">
+          <input type="text" id="input-name" class="form-control" placeholder="Enter your full name" autocomplete="off">
         </div>
 
         <!-- Email -->
         <div class="form-group">
           <label class="form-label" for="input-email">Email Address</label>
-          <input type="email" id="input-email" class="form-control" placeholder="you@example.com" required autocomplete="email">
+          <input type="email" id="input-email" class="form-control" placeholder="name@email.com" required autocomplete="off">
         </div>
 
         <!-- Password -->
@@ -112,7 +100,7 @@
             <label class="form-label" for="input-password">Password</label>
             <a href="#" id="link-forgot" class="forgot-password-link">Forgot?</a>
           </div>
-          <input type="password" id="input-password" class="form-control" placeholder="••••••••" required minlength="6" autocomplete="current-password">
+          <input type="password" id="input-password" class="form-control" placeholder="••••••••" required minlength="6" autocomplete="new-password">
         </div>
 
         <!-- Submit Button -->
