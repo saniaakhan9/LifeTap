@@ -3,12 +3,14 @@
    ========================================================================== */
 
 body.emergency-body {
-  background-color: #f8fafc;
+  background-color: var(--color-bg);
+  color: var(--color-dark);
   min-height: 100vh;
+  transition: background-color var(--transition-base), color var(--transition-base);
 }
 
 .emergency-header {
-  background: #dc2626;
+  background: var(--color-primary);
   color: #ffffff;
   padding: 1.25rem 1rem;
   box-shadow: 0 4px 15px rgba(220, 38, 38, 0.35);
@@ -58,8 +60,8 @@ body.emergency-body {
 
 /* Patient Summary Hero Card */
 .patient-card {
-  background: #ffffff;
-  border: 2px solid #fee2e2;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   padding: 1.75rem;
   margin-bottom: 1.5rem;
@@ -67,21 +69,22 @@ body.emergency-body {
   display: flex;
   align-items: center;
   gap: 1.5rem;
+  transition: all var(--transition-base);
 }
 
 .blood-group-badge-lg {
   width: 84px;
   height: 84px;
-  background: #fee2e2;
-  border: 3px solid #dc2626;
-  color: #dc2626;
+  background: var(--color-primary-light);
+  border: 3px solid var(--color-primary);
+  color: var(--color-primary);
   border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
 }
 
 .blood-group-badge-lg .label {
@@ -131,6 +134,7 @@ body.emergency-body {
   box-shadow: 0 6px 16px rgba(22, 163, 74, 0.35);
   text-decoration: none;
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  min-height: 56px;
 }
 
 .btn-emergency-call:hover {
@@ -140,7 +144,7 @@ body.emergency-body {
 }
 
 .btn-secondary-call {
-  background: #ffffff;
+  background: var(--color-surface);
   color: var(--color-dark);
   border: 1.5px solid var(--color-border);
   padding: 0.85rem 1.25rem;
@@ -151,12 +155,18 @@ body.emergency-body {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  min-height: 48px;
+  transition: background var(--transition-fast);
+}
+
+.btn-secondary-call:hover {
+  background: var(--color-bg-alt);
 }
 
 /* Critical Warning Box (Allergies) */
 .alert-box-critical {
-  background: #fef2f2;
-  border: 2px solid #dc2626;
+  background: var(--color-danger-bg);
+  border: 2px solid var(--color-danger);
   border-radius: var(--radius-lg);
   padding: 1.25rem;
   margin-bottom: 1.5rem;
@@ -164,7 +174,7 @@ body.emergency-body {
 }
 
 .alert-box-critical h3 {
-  color: #991b1b;
+  color: var(--color-danger);
   font-size: 1.05rem;
   font-weight: 800;
   display: flex;
@@ -174,7 +184,7 @@ body.emergency-body {
 }
 
 .alert-box-critical p {
-  color: #7f1d1d;
+  color: var(--color-dark);
   font-size: 1rem;
   font-weight: 600;
   line-height: 1.4;
@@ -182,12 +192,13 @@ body.emergency-body {
 
 /* Medical Info Sections */
 .emergency-section {
-  background: #ffffff;
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: 1.35rem;
   margin-bottom: 1.25rem;
   box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
 }
 
 .emergency-section-title {
@@ -211,16 +222,17 @@ body.emergency-body {
 
 /* GPS & Location Sharing Card */
 .location-card {
-  background: #ffffff;
-  border: 2px solid #e0f2fe;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   padding: 1.5rem;
   margin-bottom: 1.5rem;
   box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
 }
 
 .btn-ping-gps {
-  background: #0284c7;
+  background: var(--color-info);
   color: #ffffff;
   padding: 0.85rem 1.25rem;
   font-size: 0.95rem;
@@ -234,10 +246,11 @@ body.emergency-body {
   width: 100%;
   justify-content: center;
   transition: background var(--transition-fast);
+  min-height: 48px;
 }
 
 .btn-ping-gps:hover {
-  background: #0369a1;
+  filter: brightness(0.9);
 }
 
 #leaflet-map {
@@ -250,9 +263,9 @@ body.emergency-body {
 }
 
 .coords-badge {
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  color: #166534;
+  background: var(--color-success-bg);
+  border: 1px solid var(--color-success);
+  color: var(--color-success);
   font-family: var(--font-family-mono);
   font-size: 0.8rem;
   padding: 0.5rem 0.75rem;
@@ -269,7 +282,7 @@ body.emergency-body {
 }
 
 .btn-dispatch {
-  padding: 0.65rem 0.85rem;
+  padding: 0.75rem 0.85rem;
   font-size: 0.85rem;
   font-weight: 700;
   border-radius: var(--radius-md);
@@ -279,6 +292,7 @@ body.emergency-body {
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
+  min-height: 44px;
 }
 
 .btn-dispatch-whatsapp {
@@ -295,7 +309,7 @@ body.emergency-body {
 .status-error-screen {
   text-align: center;
   padding: 4rem 1.5rem;
-  background: #ffffff;
+  background: var(--color-surface);
   border-radius: var(--radius-xl);
   border: 1px solid var(--color-border);
   margin-top: 2rem;
@@ -319,4 +333,28 @@ body.emergency-body {
   max-width: 440px;
   margin: 0 auto 1.5rem;
   line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+  .emergency-wrapper {
+    margin: 1rem auto 3rem;
+    padding: 0 0.85rem;
+  }
+  .patient-card {
+    padding: 1.25rem;
+    gap: 1rem;
+  }
+  .blood-group-badge-lg {
+    width: 68px;
+    height: 68px;
+  }
+  .blood-group-badge-lg .val {
+    font-size: 1.65rem;
+  }
+  .patient-name {
+    font-size: 1.35rem;
+  }
+  .quick-dispatch-row {
+    grid-template-columns: 1fr;
+  }
 }

@@ -7,6 +7,14 @@
   <meta name="description" content="Manage your LifeTap emergency medical profile, privacy controls, and QR code token.">
   <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
   
+  <!-- Instant Theme Initializer (prevents FOUC) -->
+  <script>
+    (function(){
+      const t = localStorage.getItem('lifetap-theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,7 +48,10 @@
         <span class="brand-badge">Dashboard</span>
       </a>
 
-      <div style="display:flex; align-items:center; gap:1rem;">
+      <div class="header-actions">
+        <button type="button" class="btn-theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+          <span class="theme-toggle-icon">🌙</span>
+        </button>
         <a href="#" id="btn-header-view-emergency" class="btn btn-outline-danger btn-sm" target="_blank">
           🚨 View Public Emergency Page
         </a>
@@ -465,7 +476,9 @@
     import { privacyService } from './js/privacy.js';
     import { qrManager } from './js/qr-manager.js';
     import { cardGenerator } from './js/card-generator.js';
+    import { setupThemeToggleButtons } from './js/theme.js';
 
+    setupThemeToggleButtons();
     renderFirebaseBanner();
 
     let currentUser = null;

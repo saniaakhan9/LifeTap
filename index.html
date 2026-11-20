@@ -7,6 +7,14 @@
   <meta name="description" content="LifeTap provides secure, QR-based smart emergency identification. Rescuers scan to see critical medical alerts, blood group, and call your emergency contacts without installing an app.">
   <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
   
+  <!-- Instant Theme Initializer (prevents FOUC) -->
+  <script>
+    (function(){
+      const t = localStorage.getItem('lifetap-theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -34,13 +42,19 @@
         <span class="brand-badge">Emergency ID</span>
       </a>
 
-      <button class="nav-toggle" id="nav-toggle-btn" aria-label="Toggle navigation">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="3" y1="12" x2="21" y2="12"></line>
-          <line x1="3" y1="6" x2="21" y2="6"></line>
-          <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
-      </button>
+      <div class="header-actions">
+        <button type="button" class="btn-theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+          <span class="theme-toggle-icon">🌙</span>
+        </button>
+
+        <button class="nav-toggle" id="nav-toggle-btn" aria-label="Toggle navigation">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
 
       <ul class="nav-links" id="nav-menu">
         <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
@@ -288,6 +302,10 @@
     import { renderFirebaseBanner } from './js/firebase-config.js';
     import { authService } from './js/auth.js';
     import { qrManager } from './js/qr-manager.js';
+    import { setupThemeToggleButtons } from './js/theme.js';
+
+    // Initialize Theme Toggles
+    setupThemeToggleButtons();
 
     // Render environment status banner
     renderFirebaseBanner();

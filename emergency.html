@@ -7,6 +7,14 @@
   <meta name="description" content="Immediate medical responder information and emergency contact access. No app installation required.">
   <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
   
+  <!-- Instant Theme Initializer (prevents FOUC) -->
+  <script>
+    (function(){
+      const t = localStorage.getItem('lifetap-theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,9 +43,14 @@
         <span class="pulse-beacon"></span>
         <span>LifeTap Emergency ID</span>
       </div>
-      <span class="badge" style="background:#ffffff; color:#dc2626; font-size:0.75rem; font-weight:800;">
-        FIRST RESPONDER VIEW
-      </span>
+      <div style="display:flex; align-items:center; gap:0.65rem;">
+        <button type="button" class="btn-theme-toggle" aria-label="Toggle theme" title="Toggle theme" style="background:rgba(255,255,255,0.2); border-color:rgba(255,255,255,0.4); color:#ffffff; width:34px; height:34px;">
+          <span class="theme-toggle-icon">🌙</span>
+        </button>
+        <span class="badge" style="background:#ffffff; color:#dc2626; font-size:0.75rem; font-weight:800;">
+          FIRST RESPONDER VIEW
+        </span>
+      </div>
     </div>
   </header>
 
@@ -182,6 +195,9 @@
   <!-- Script Modules -->
   <script type="module">
     import { initializeEmergencyResponderPage } from './js/emergency.js';
+    import { setupThemeToggleButtons } from './js/theme.js';
+
+    setupThemeToggleButtons();
     initializeEmergencyResponderPage();
   </script>
 </body>

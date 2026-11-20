@@ -7,6 +7,14 @@
   <meta name="description" content="Securely access your LifeTap emergency profile and manage your emergency QR code.">
   <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
   
+  <!-- Instant Theme Initializer (prevents FOUC) -->
+  <script>
+    (function(){
+      const t = localStorage.getItem('lifetap-theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,7 +44,10 @@
         <span class="brand-badge">Emergency ID</span>
       </a>
 
-      <div>
+      <div class="header-actions">
+        <button type="button" class="btn-theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+          <span class="theme-toggle-icon">🌙</span>
+        </button>
         <a href="index.html" class="btn btn-secondary btn-sm">
           ← Back to Home
         </a>
@@ -63,15 +74,15 @@
       </div>
 
       <!-- Demo Credentials Callout -->
-      <div style="background:#fef2f2; border:1px dashed #fca5a5; border-radius:10px; padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.825rem; color:#991b1b;">
+      <div style="background:var(--color-primary-subtle); border:1px dashed var(--color-primary-light); border-radius:10px; padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.825rem; color:var(--color-dark);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">
-          <strong style="display:flex; align-items:center; gap:0.35rem;">⚡ Demo Login Credentials:</strong>
-          <button type="button" id="btn-autofill-demo" style="background:#dc2626; color:#ffffff; border:none; padding:3px 8px; border-radius:5px; font-size:0.75rem; font-weight:700; cursor:pointer;">
+          <strong style="display:flex; align-items:center; gap:0.35rem; color:var(--color-primary);">⚡ Demo Login Credentials:</strong>
+          <button type="button" id="btn-autofill-demo" style="background:var(--color-primary); color:#ffffff; border:none; padding:3px 8px; border-radius:5px; font-size:0.75rem; font-weight:700; cursor:pointer;">
             1-Click Auto Fill
           </button>
         </div>
-        <div>Email: <code style="font-family:monospace; background:#fff; padding:1px 4px; border-radius:3px;">demo@lifetap.com</code></div>
-        <div>Password: <code style="font-family:monospace; background:#fff; padding:1px 4px; border-radius:3px;">password123</code></div>
+        <div>Email: <code style="font-family:monospace; background:var(--color-surface); color:var(--color-primary); padding:1px 6px; border-radius:4px; border:1px solid var(--color-border);">demo@lifetap.com</code></div>
+        <div style="margin-top:2px;">Password: <code style="font-family:monospace; background:var(--color-surface); color:var(--color-primary); padding:1px 6px; border-radius:4px; border:1px solid var(--color-border);">password123</code></div>
       </div>
 
       <!-- Feedback Alert -->
@@ -131,7 +142,9 @@
   <script type="module">
     import { renderFirebaseBanner, showToast } from './js/firebase-config.js';
     import { authService } from './js/auth.js';
+    import { setupThemeToggleButtons } from './js/theme.js';
 
+    setupThemeToggleButtons();
     renderFirebaseBanner();
 
     // Check if already authenticated via Firebase Auth or LocalMockDatabase
