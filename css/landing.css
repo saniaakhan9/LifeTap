@@ -82,7 +82,8 @@
 .hero-trust-row {
   display: flex;
   align-items: center;
-  gap: 1.75rem;
+  gap: 1.25rem;
+  flex-wrap: wrap;
   color: var(--color-muted);
   font-size: 0.875rem;
   border-top: 1px solid var(--color-border);
@@ -347,10 +348,11 @@
   margin: 0 auto 2rem;
 }
 
-/* Responsive */
+/* Responsive Adjustments for Mobile & Tablets */
 @media (max-width: 992px) {
   .hero-grid {
     grid-template-columns: 1fr;
+    gap: 2.5rem;
     text-align: center;
   }
   .hero-description {
@@ -364,17 +366,77 @@
   }
   .steps-grid, .features-grid {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
 }
 
 @media (max-width: 640px) {
+  .hero-section {
+    padding: 2.75rem 0 2rem;
+  }
+  .hero-badge-pill {
+    margin-bottom: 1rem;
+    font-size: 0.78rem;
+  }
   .hero-title {
-    font-size: 2.35rem;
+    font-size: clamp(1.85rem, 6.5vw, 2.35rem);
+    line-height: 1.15;
+    word-break: break-word;
+  }
+  .hero-title br {
+    display: none;
+  }
+  .hero-description {
+    font-size: 0.95rem;
+    line-height: 1.55;
+    margin: 0 auto 1.5rem;
+  }
+  .hero-cta-group {
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+  .hero-cta-group .btn {
+    width: 100%;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+  }
+  .hero-trust-row {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .hero-preview-card {
+    padding: 1.25rem 1rem;
+  }
+  .preview-actions-demo {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+  .preview-actions-demo .btn {
+    width: 100%;
+    font-size: 0.85rem;
+    padding: 0.65rem;
+  }
+  .section {
+    padding: 3rem 0;
+  }
+  .section-header {
+    margin-bottom: 2rem;
+  }
+  .section-title {
+    font-size: 1.75rem;
+  }
+  .step-card {
+    padding: 1.5rem 1.25rem;
+  }
+  .feature-box {
+    padding: 1.5rem 1.25rem;
   }
   .cta-banner {
-    padding: 2.5rem 1.5rem;
+    padding: 2.25rem 1.25rem;
   }
   .cta-banner h2 {
-    font-size: 1.75rem;
+    font-size: 1.55rem;
   }
 }
