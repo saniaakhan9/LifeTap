@@ -212,16 +212,6 @@
       setMode(currentMode === 'login' ? 'register' : 'login');
     });
 
-    // Auto-fill demo credentials
-    const btnAutoFill = document.getElementById('btn-autofill-demo');
-    if (btnAutoFill) {
-      btnAutoFill.addEventListener('click', () => {
-        setMode('login');
-        inputEmail.value = 'demo@lifetap.com';
-        inputPassword.value = 'password123';
-        showToast('Demo credentials filled! Click Sign In.', 'info');
-      });
-    }
 
     // Password reset toggle
     linkForgot.addEventListener('click', (e) => {
