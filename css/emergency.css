@@ -80,18 +80,22 @@ body.emergency-body {
 }
 
 .blood-group-badge-lg {
-  width: 84px;
-  height: 84px;
+  width: 70px;
+  height: 70px;
+  min-width: 70px;
+  max-width: 70px;
   background: var(--color-primary-light);
-  border: 3px solid var(--color-primary);
+  border: 2px solid var(--color-primary);
   color: var(--color-primary);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+  overflow: hidden;
+  padding: 4px;
 }
 
 .blood-group-badge-lg .label {
@@ -102,9 +106,14 @@ body.emergency-body {
 }
 
 .blood-group-badge-lg .val {
-  font-size: 2rem;
+  font-size: 1.45rem;
   font-weight: 900;
-  line-height: 1;
+  line-height: 1.1;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
 }
 
 .patient-info {
@@ -361,18 +370,20 @@ body.emergency-body {
     padding: 0 0.85rem;
   }
   .patient-card {
-    padding: 1.25rem 1rem;
+    padding: 1.15rem 0.95rem;
     gap: 0.85rem;
   }
   .blood-group-badge-lg {
-    width: 64px;
-    height: 64px;
+    width: 58px;
+    height: 58px;
+    min-width: 58px;
+    max-width: 58px;
   }
   .blood-group-badge-lg .val {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
   }
   .patient-name {
-    font-size: 1.3rem;
+    font-size: 1.25rem;
   }
   .quick-dispatch-row {
     grid-template-columns: 1fr;
@@ -380,19 +391,22 @@ body.emergency-body {
   }
   .btn-emergency-call {
     font-size: 1.05rem;
-    padding: 1rem 1.15rem;
+    padding: 0.9rem 1.15rem;
   }
 }
 
 @media (max-width: 480px) {
   .emergency-header {
-    padding: 0.85rem 0.75rem;
+    padding: 0.75rem 0.85rem;
   }
   .emergency-alert-pulse {
-    font-size: 0.88rem;
-    gap: 0.4rem;
+    font-size: 0.85rem;
+    gap: 0.35rem;
+    white-space: nowrap;
   }
   .emergency-header .badge {
-    display: none;
+    font-size: 0.65rem !important;
+    padding: 0.2rem 0.45rem !important;
+    white-space: nowrap;
   }
 }

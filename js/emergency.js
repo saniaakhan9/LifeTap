@@ -93,7 +93,16 @@ export function initializeEmergencyResponderPage() {
     // Blood Group
     const bloodValEl = document.getElementById('resp-bloodVal');
     if (bloodValEl) {
-      bloodValEl.textContent = data.bloodGroup || 'UNK';
+      let bg = (data.bloodGroup || '').trim();
+      if (!bg || bg.toLowerCase() === 'not specified' || bg.toLowerCase() === 'unknown' || bg.toLowerCase() === 'none' || bg === '--') {
+        bg = 'N/A';
+      }
+      bloodValEl.textContent = bg;
+      if (bg.length > 3) {
+        bloodValEl.style.fontSize = '0.95rem';
+      } else {
+        bloodValEl.style.fontSize = '';
+      }
     }
 
     // Organ Donor Badge

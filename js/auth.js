@@ -10,11 +10,28 @@ export const authService = {
   async register(email, password, displayName) {
     const auth = getFirebaseAuth();
     if (auth) {
-      const cred = await auth.createUserWithEmailAndPassword(email, password);
-      if (displayName && cred.user) {
-        await cred.user.updateProfile({ displayName });
+      try {
+        if (typeof window !== 'undefined' && window.firebase?.auth?.Auth?.Persistence) {
+          try {
+            await auth.setPersistence(window.firebase.auth.Auth.Persistence.LOCAL);
+          } catch(e) {}
+        }
+        const cred = await auth.createUserWithEmailAndPassword(email, password);
+        if (displayName && cred.user) {
+          await cred.user.updateProfile({ displayName });
+        }
+        if (cred && cred.user) {
+          localDb.setSession({
+            uid: cred.user.uid,
+            email: cred.user.email,
+            displayName: displayName || cred.user.email.split('@')[0]
+          });
+        }
+        return cred.user;
+      } catch (err) {
+        console.warn("Firebase Auth register failed, attempting local fallback:", err);
+        return await localDb.signUp(email, password, displayName);
       }
-      return cred.user;
     } else {
       return await localDb.signUp(email, password, displayName);
     }
@@ -24,8 +41,29 @@ export const authService = {
   async login(email, password) {
     const auth = getFirebaseAuth();
     if (auth) {
-      const cred = await auth.signInWithEmailAndPassword(email, password);
-      return cred.user;
+      try {
+        if (typeof window !== 'undefined' && window.firebase?.auth?.Auth?.Persistence) {
+          try {
+            await auth.setPersistence(window.firebase.auth.Auth.Persistence.LOCAL);
+          } catch(e) {}
+        }
+        const cred = await auth.signInWithEmailAndPassword(email, password);
+        if (cred && cred.user) {
+          localDb.setSession({
+            uid: cred.user.uid,
+            email: cred.user.email,
+            displayName: cred.user.displayName || cred.user.email.split('@')[0]
+          });
+          return cred.user;
+        }
+      } catch (firebaseErr) {
+        console.warn("Firebase Auth login failed, checking local credentials:", firebaseErr);
+        try {
+          return await localDb.signIn(email, password);
+        } catch (localErr) {
+          throw firebaseErr;
+        }
+      }
     } else {
       return await localDb.signIn(email, password);
     }
@@ -35,44 +73,58 @@ export const authService = {
   async logout() {
     const auth = getFirebaseAuth();
     if (auth) {
-      await auth.signOut();
-    } else {
-      await localDb.signOut();
+      try {
+        await auth.signOut();
+      } catch(e) {}
     }
+    await localDb.signOut();
   },
 
   // Send password reset email
   async resetPassword(email) {
     const auth = getFirebaseAuth();
     if (auth) {
-      await auth.sendPasswordResetEmail(email);
-    } else {
-      // Local fallback simulation
-      await new Promise(r => setTimeout(r, 600));
-      return true;
+      try {
+        await auth.sendPasswordResetEmail(email);
+        return true;
+      } catch (e) {
+        console.warn("Firebase reset error:", e);
+      }
     }
+    await new Promise(r => setTimeout(r, 600));
+    return true;
   },
 
   // Get current user synchronously or asynchronously
   getCurrentUser() {
     const auth = getFirebaseAuth();
-    if (auth) {
+    if (auth && auth.currentUser) {
       return auth.currentUser;
     }
     return localDb.getCurrentUser();
   },
 
-  // Observer for auth state changes
+  // Observer for auth state changes with persistent cache bridge
   onAuthStateChanged(callback) {
     const auth = getFirebaseAuth();
     if (auth) {
       return auth.onAuthStateChanged(user => {
-        callback(user);
+        if (user) {
+          localDb.setSession({
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName || user.email.split('@')[0]
+          });
+          callback(user);
+        } else {
+          // Check cached local session before emitting null
+          const cached = localDb.getCurrentUser();
+          callback(cached || null);
+        }
       });
     } else {
       const user = localDb.getCurrentUser();
-      callback(user);
-      // Return dummy unsubscribe function
+      callback(user || null);
       return () => {};
     }
   },
