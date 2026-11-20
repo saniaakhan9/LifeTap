@@ -152,9 +152,9 @@
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="prof-bloodGroup">Blood Group *</label>
-              <select id="prof-bloodGroup" class="form-control" required>
-                <option value="">Select Blood Group</option>
+              <label class="form-label" for="prof-bloodGroup">Blood Group</label>
+              <select id="prof-bloodGroup" class="form-control">
+                <option value="">Select Blood Group (or leave empty)</option>
                 <option value="A+">A Positive (A+)</option>
                 <option value="A-">A Negative (A-)</option>
                 <option value="B+">B Positive (B+)</option>
@@ -163,7 +163,7 @@
                 <option value="AB-">AB Negative (AB-)</option>
                 <option value="O+">O Positive (O+)</option>
                 <option value="O-">O Negative (O-)</option>
-                <option value="Unknown">Unknown</option>
+                <option value="Unknown">Unknown / Other</option>
               </select>
             </div>
           </div>
@@ -172,7 +172,7 @@
           <div class="form-grid-2">
             <div class="form-group">
               <label class="form-label" for="prof-allergies">
-                Critical Allergies *
+                Critical Allergies
                 <span class="form-label-hint">(Food, drug, latex, insect stings)</span>
               </label>
               <input type="text" id="prof-allergies" class="form-control" placeholder="Enter known allergies, or 'None'" autocomplete="off">
@@ -205,16 +205,16 @@
           <!-- Emergency Contact 1 -->
           <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;">
             <h4 style="font-size:0.95rem; font-weight:700; color:#dc2626; margin-bottom:0.75rem;">
-              🚨 Primary Emergency Contact (Required)
+              🚨 Primary Emergency Contact
             </h4>
             <div class="form-grid-2">
               <div class="form-group" style="margin-bottom:0;">
-                <label class="form-label" for="prof-c1-name">Contact Name & Relationship *</label>
-                <input type="text" id="prof-c1-name" class="form-control" placeholder="Full name & relationship" autocomplete="off" required>
+                <label class="form-label" for="prof-c1-name">Contact Name & Relationship</label>
+                <input type="text" id="prof-c1-name" class="form-control" placeholder="Full name & relationship" autocomplete="off">
               </div>
               <div class="form-group" style="margin-bottom:0;">
-                <label class="form-label" for="prof-c1-phone">Contact Phone Number *</label>
-                <input type="tel" id="prof-c1-phone" class="form-control" placeholder="Phone number with country code" autocomplete="off" required>
+                <label class="form-label" for="prof-c1-phone">Contact Phone Number</label>
+                <input type="tel" id="prof-c1-phone" class="form-control" placeholder="Phone number with country code" autocomplete="off">
               </div>
             </div>
           </div>
@@ -707,12 +707,16 @@
       try {
         await profileService.saveProfile(currentUser.uid, profileData);
         // Sync public token data
+        if (!tokenRecord) {
+          tokenRecord = await qrManager.ensureUserToken(currentUser.uid, profileData, privacyData);
+        }
         if (tokenRecord?.tokenId) {
           await qrManager.syncTokenData(currentUser.uid, tokenRecord.tokenId, profileData, privacyData);
         }
         showToast('Emergency profile saved successfully!', 'success');
         updateStatsAndQR();
       } catch (err) {
+        console.error("Save profile error:", err);
         showToast(err.message || 'Error saving profile', 'error');
       } finally {
         btn.disabled = false;

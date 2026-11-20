@@ -73,8 +73,8 @@ export const privacyService = {
 
     return {
       fullName: p.showFullName ? (profile.fullName || 'Protected User') : 'Anonymous Individual',
-      bloodGroup: p.showBloodGroup ? (profile.bloodGroup || 'Not Specified') : null,
-      allergies: p.showAllergies ? (profile.allergies || 'None reported') : null,
+      bloodGroup: p.showBloodGroup ? (profile.bloodGroup || '') : null,
+      allergies: p.showAllergies ? (profile.allergies || '') : null,
       conditions: p.showConditions ? (profile.conditions || null) : null,
       medications: p.showMedications ? (profile.medications || null) : null,
       instructions: p.showInstructions ? (profile.instructions || null) : null,

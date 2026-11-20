@@ -10,18 +10,35 @@ export const profileService = {
   async getProfile(uid) {
     if (!uid) return null;
 
+    // 1. Check local cache first for instant retrieval
+    let localData = null;
+    try {
+      const raw = localStorage.getItem(`lifetap_profile_${uid}`);
+      if (raw) localData = JSON.parse(raw);
+    } catch (e) {}
+    if (!localData) {
+      localData = await localDb.getUserProfile(uid);
+    }
+
+    // 2. Fetch from Firestore if available
     const db = getFirestoreDb();
     if (db) {
       try {
         const doc = await db.collection('users').doc(uid).get();
         if (doc.exists) {
-          return doc.data();
+          const remote = doc.data();
+          const merged = { ...localData, ...remote };
+          try {
+            localStorage.setItem(`lifetap_profile_${uid}`, JSON.stringify(merged));
+            await localDb.saveUserProfile(uid, merged);
+          } catch(e) {}
+          return merged;
         }
       } catch (err) {
-        console.error("Error reading Firestore profile:", err);
+        console.warn("Could not read Firestore profile, using local:", err);
       }
     }
-    return await localDb.getUserProfile(uid);
+    return localData;
   },
 
   // Save emergency profile for a user
@@ -43,17 +60,25 @@ export const profileService = {
       updatedAt: new Date().toISOString()
     };
 
+    // 1. ALWAYS persist locally immediately so data is NEVER lost
+    try {
+      localStorage.setItem(`lifetap_profile_${uid}`, JSON.stringify(sanitized));
+      await localDb.saveUserProfile(uid, sanitized);
+    } catch (e) {
+      console.warn("Local storage write error:", e);
+    }
+
+    // 2. Persist to live Firestore
     const db = getFirestoreDb();
     if (db) {
       try {
         await db.collection('users').doc(uid).set(sanitized, { merge: true });
-        return sanitized;
       } catch (err) {
-        console.warn("Firestore save failed, persisting to local storage:", err);
+        console.warn("Firestore save failed, fallback already in local storage:", err);
       }
     }
 
-    return await localDb.saveUserProfile(uid, sanitized);
+    return sanitized;
   },
 
   // Calculate profile completeness score (0 to 100%)
