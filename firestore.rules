@@ -23,17 +23,20 @@ service cloud.firestore {
     }
 
     // 2. Public Emergency Tokens Registry
-    // The public rescuer page can read the emergency token if it is active.
+    // First responders can only read an emergency token if it is actively enabled and not revoked.
+    // The token owner can always read their own token even when suspended/revoked.
     // Only the owner who generated the token can update, deactivate, or delete it.
     match /emergency_tokens/{tokenId} {
-      // Anyone with the specific token URL can read the permitted emergency fields
-      allow read: if true;
+      // Rescuers can read only if active == true and revoked != true.
+      // Account owner can always read their own token for dashboard management.
+      allow read: if (resource.data.active == true && (!('revoked' in resource.data) || resource.data.revoked == false))
+                  || (isAuthenticated() && resource.data.userId == request.auth.uid);
 
       // Only the owning user can create their token record
       allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
 
-      // Only the owning user can update or deactivate their token record
-      allow update: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      // Only the owning user can update or deactivate their token record, and ownership cannot be transferred
+      allow update: if isAuthenticated() && resource.data.userId == request.auth.uid && request.resource.data.userId == resource.data.userId;
 
       // Only the owner can delete
       allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;

@@ -3,27 +3,14 @@
  * Authentication Service (Firebase Auth with Seamless Local Fallback)
  */
 
-import { firebaseConfig, isLiveFirebaseConfigured, localDb, showToast } from './firebase-config.js';
-
-let authInstance = null;
-
-// Initialize Firebase Auth if live keys exist
-if (isLiveFirebaseConfigured() && window.firebase) {
-  try {
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-    authInstance = firebase.auth();
-  } catch (err) {
-    console.error("Firebase auth initialization error:", err);
-  }
-}
+import { getFirebaseAuth, localDb, showToast } from './firebase-config.js';
 
 export const authService = {
   // Sign up new user
   async register(email, password, displayName) {
-    if (authInstance) {
-      const cred = await authInstance.createUserWithEmailAndPassword(email, password);
+    const auth = getFirebaseAuth();
+    if (auth) {
+      const cred = await auth.createUserWithEmailAndPassword(email, password);
       if (displayName && cred.user) {
         await cred.user.updateProfile({ displayName });
       }
@@ -35,8 +22,9 @@ export const authService = {
 
   // Login existing user
   async login(email, password) {
-    if (authInstance) {
-      const cred = await authInstance.signInWithEmailAndPassword(email, password);
+    const auth = getFirebaseAuth();
+    if (auth) {
+      const cred = await auth.signInWithEmailAndPassword(email, password);
       return cred.user;
     } else {
       return await localDb.signIn(email, password);
@@ -45,8 +33,9 @@ export const authService = {
 
   // Logout
   async logout() {
-    if (authInstance) {
-      await authInstance.signOut();
+    const auth = getFirebaseAuth();
+    if (auth) {
+      await auth.signOut();
     } else {
       await localDb.signOut();
     }
@@ -54,8 +43,9 @@ export const authService = {
 
   // Send password reset email
   async resetPassword(email) {
-    if (authInstance) {
-      await authInstance.sendPasswordResetEmail(email);
+    const auth = getFirebaseAuth();
+    if (auth) {
+      await auth.sendPasswordResetEmail(email);
     } else {
       // Local fallback simulation
       await new Promise(r => setTimeout(r, 600));
@@ -65,16 +55,18 @@ export const authService = {
 
   // Get current user synchronously or asynchronously
   getCurrentUser() {
-    if (authInstance) {
-      return authInstance.currentUser;
+    const auth = getFirebaseAuth();
+    if (auth) {
+      return auth.currentUser;
     }
     return localDb.getCurrentUser();
   },
 
   // Observer for auth state changes
   onAuthStateChanged(callback) {
-    if (authInstance) {
-      return authInstance.onAuthStateChanged(user => {
+    const auth = getFirebaseAuth();
+    if (auth) {
+      return auth.onAuthStateChanged(user => {
         callback(user);
       });
     } else {

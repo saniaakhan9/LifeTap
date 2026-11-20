@@ -3,31 +3,27 @@
  * Public Responder & Emergency View Controller
  */
 
-import { isLiveFirebaseConfigured, localDb, showToast } from './firebase-config.js';
-
-let dbInstance = null;
-
-if (isLiveFirebaseConfigured() && window.firebase) {
-  try {
-    dbInstance = firebase.firestore();
-  } catch (e) {
-    console.error("Firestore init error in emergency.js:", e);
-  }
-}
+import { getFirestoreDb, localDb, showToast } from './firebase-config.js';
 
 export const emergencyService = {
   // Fetch emergency token data from Firestore or local fallback
   async fetchEmergencyData(tokenId) {
     if (!tokenId) return null;
 
-    if (dbInstance) {
+    const db = getFirestoreDb();
+    if (db) {
       try {
-        const doc = await dbInstance.collection('emergency_tokens').doc(tokenId).get();
+        const doc = await db.collection('emergency_tokens').doc(tokenId).get();
         if (doc.exists) {
           return doc.data();
         }
+        return null;
       } catch (err) {
         console.warn("Firestore emergency token lookup failed:", err);
+        // If security rules rejected reading because token is inactive/revoked
+        if (err.code === 'permission-denied' || (err.message && err.message.includes('permission'))) {
+          return { active: false, revoked: true };
+        }
       }
     }
 
@@ -70,7 +66,11 @@ export function initializeEmergencyResponderPage() {
     renderResponderView(data);
   }).catch(err => {
     if (loadingEl) loadingEl.style.display = 'none';
-    showError("Unable to Load Emergency Profile", "A network error occurred while retrieving emergency information.");
+    if (err && (err.code === 'permission-denied' || (err.message && err.message.includes('permission')))) {
+      showError("Emergency Profile Suspended", "This emergency ID has been deactivated or revoked by the cardholder.");
+    } else {
+      showError("Unable to Load Emergency Profile", "A network error occurred while retrieving emergency information.");
+    }
   });
 
   function showError(title, message) {

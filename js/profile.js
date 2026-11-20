@@ -3,26 +3,17 @@
  * User Profile Management Service
  */
 
-import { isLiveFirebaseConfigured, localDb, showToast } from './firebase-config.js';
-
-let dbInstance = null;
-
-if (isLiveFirebaseConfigured() && window.firebase) {
-  try {
-    dbInstance = firebase.firestore();
-  } catch (err) {
-    console.error("Firestore initialization error in profile.js:", err);
-  }
-}
+import { getFirestoreDb, localDb, showToast } from './firebase-config.js';
 
 export const profileService = {
   // Get emergency profile for a user
   async getProfile(uid) {
     if (!uid) return null;
 
-    if (dbInstance) {
+    const db = getFirestoreDb();
+    if (db) {
       try {
-        const doc = await dbInstance.collection('users').doc(uid).get();
+        const doc = await db.collection('users').doc(uid).get();
         if (doc.exists) {
           return doc.data();
         }
@@ -52,9 +43,10 @@ export const profileService = {
       updatedAt: new Date().toISOString()
     };
 
-    if (dbInstance) {
+    const db = getFirestoreDb();
+    if (db) {
       try {
-        await dbInstance.collection('users').doc(uid).set(sanitized, { merge: true });
+        await db.collection('users').doc(uid).set(sanitized, { merge: true });
         return sanitized;
       } catch (err) {
         console.warn("Firestore save failed, persisting to local storage:", err);

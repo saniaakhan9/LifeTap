@@ -134,11 +134,12 @@
 
     renderFirebaseBanner();
 
-    // Check if already authenticated
-    const currentUser = authService.getCurrentUser();
-    if (currentUser) {
-      window.location.href = 'dashboard.html';
-    }
+    // Check if already authenticated via Firebase Auth or LocalMockDatabase
+    authService.onAuthStateChanged((user) => {
+      if (user) {
+        window.location.href = 'dashboard.html';
+      }
+    });
 
     // State
     let currentMode = 'login'; // 'login' or 'register'

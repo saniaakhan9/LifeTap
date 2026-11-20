@@ -122,9 +122,11 @@ Follow these 4 simple steps to connect your own live Firebase project:
          }
        }
        match /emergency_tokens/{tokenId} {
-         allow read: if true;
+         allow read: if (resource.data.active == true && (!('revoked' in resource.data) || resource.data.revoked == false))
+                     || (request.auth != null && resource.data.userId == request.auth.uid);
          allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-         allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+         allow update: if request.auth != null && resource.data.userId == request.auth.uid && request.resource.data.userId == resource.data.userId;
+         allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
        }
        match /{document=**} {
          allow read, write: if false;

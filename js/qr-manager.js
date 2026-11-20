@@ -3,18 +3,8 @@
  * QR Code & Cryptographic Token Manager
  */
 
-import { isLiveFirebaseConfigured, localDb, showToast } from './firebase-config.js';
+import { getFirestoreDb, localDb, showToast } from './firebase-config.js';
 import { privacyService } from './privacy.js';
-
-let dbInstance = null;
-
-if (isLiveFirebaseConfigured() && window.firebase) {
-  try {
-    dbInstance = firebase.firestore();
-  } catch (e) {
-    console.error("Firestore init error in qr-manager.js:", e);
-  }
-}
 
 /**
  * Generate cryptographically secure URL-friendly token (NanoID equivalent)
@@ -41,7 +31,7 @@ export function generateSecureToken(size = 18) {
 export const qrManager = {
   // Construct the full public responder URL for a token
   getEmergencyUrl(tokenId) {
-    const origin = window.location.origin;
+    const origin = (window.location.origin && window.location.origin !== 'null') ? window.location.origin : '';
     // Handle path resolution for GitHub Pages / subfolder or root
     const pathname = window.location.pathname;
     const basePath = pathname.substring(0, pathname.lastIndexOf('/') + 1);
@@ -52,13 +42,14 @@ export const qrManager = {
   async getUserTokenRecord(uid) {
     if (!uid) return null;
 
-    if (dbInstance) {
+    const db = getFirestoreDb();
+    if (db) {
       try {
-        const userDoc = await dbInstance.collection('users').doc(uid).get();
+        const userDoc = await db.collection('users').doc(uid).get();
         if (userDoc.exists) {
           const data = userDoc.data();
           if (data.activeTokenId) {
-            const tokenDoc = await dbInstance.collection('emergency_tokens').doc(data.activeTokenId).get();
+            const tokenDoc = await db.collection('emergency_tokens').doc(data.activeTokenId).get();
             if (tokenDoc.exists) {
               return tokenDoc.data();
             }
@@ -101,12 +92,13 @@ export const qrManager = {
       createdAt: new Date().toISOString()
     };
 
-    if (dbInstance) {
+    const db = getFirestoreDb();
+    if (db) {
       try {
         // Save to public emergency_tokens registry
-        await dbInstance.collection('emergency_tokens').doc(tokenId).set(record);
+        await db.collection('emergency_tokens').doc(tokenId).set(record);
         // Link to user document
-        await dbInstance.collection('users').doc(uid).set({ activeTokenId: tokenId }, { merge: true });
+        await db.collection('users').doc(uid).set({ activeTokenId: tokenId }, { merge: true });
       } catch (err) {
         console.warn("Firestore token save failed:", err);
       }
@@ -125,10 +117,12 @@ export const qrManager = {
 
     const publicData = privacyService.filterPublicEmergencyData(profile, privacySettings);
 
-    if (dbInstance) {
+    const db = getFirestoreDb();
+    if (db) {
       try {
-        await dbInstance.collection('emergency_tokens').doc(tokenId).set({
+        await db.collection('emergency_tokens').doc(tokenId).set({
           ...publicData,
+          userId: uid,
           updatedAt: new Date().toISOString()
         }, { merge: true });
       } catch (err) {
@@ -139,7 +133,8 @@ export const qrManager = {
     const current = (await localDb.getEmergencyToken(tokenId)) || {};
     await localDb.saveEmergencyToken(tokenId, {
       ...current,
-      ...publicData
+      ...publicData,
+      userId: uid
     });
   },
 
@@ -147,9 +142,10 @@ export const qrManager = {
   async setTokenActive(uid, tokenId, isActive) {
     if (!tokenId) return;
 
-    if (dbInstance) {
+    const db = getFirestoreDb();
+    if (db) {
       try {
-        await dbInstance.collection('emergency_tokens').doc(tokenId).update({
+        await db.collection('emergency_tokens').doc(tokenId).update({
           active: !!isActive,
           statusChangedAt: new Date().toISOString()
         });
@@ -167,9 +163,10 @@ export const qrManager = {
     if (oldTokenId) {
       // Deactivate old token
       await this.setTokenActive(uid, oldTokenId, false);
-      if (dbInstance) {
+      const db = getFirestoreDb();
+      if (db) {
         try {
-          await dbInstance.collection('emergency_tokens').doc(oldTokenId).update({
+          await db.collection('emergency_tokens').doc(oldTokenId).update({
             revoked: true,
             active: false
           });

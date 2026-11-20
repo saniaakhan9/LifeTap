@@ -8,17 +8,18 @@
  */
 
 const DEFAULT_FIREBASE_CONFIG = {
-  apiKey: "YOUR_FIREBASE_API_KEY",
-  authDomain: "your-lifetap-project.firebaseapp.com",
-  projectId: "your-lifetap-project",
-  storageBucket: "your-lifetap-project.appspot.com",
-  messagingSenderId: "000000000000",
-  appId: "1:000000000000:web:0000000000000000"
+  apiKey: "AIzaSyDL6mqHP7cvJBvl6nI2fp4XwkEY7jlZIGI",
+  authDomain: "lifetap-emergency.firebaseapp.com",
+  projectId: "lifetap-emergency",
+  storageBucket: "lifetap-emergency.firebasestorage.app",
+  messagingSenderId: "944413154131",
+  appId: "1:944413154131:web:03ca47732c1a195d605fa6",
+  measurementId: "G-EEP7JVGG4S"
 };
 
 // Check for user-saved runtime config in localStorage, or use default
-function getActiveFirebaseConfig() {
-  const saved = localStorage.getItem('lifetap_custom_firebase_config');
+export function getActiveFirebaseConfig() {
+  const saved = (typeof localStorage !== 'undefined') ? localStorage.getItem('lifetap_custom_firebase_config') : null;
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
@@ -32,16 +33,79 @@ function getActiveFirebaseConfig() {
   return DEFAULT_FIREBASE_CONFIG;
 }
 
-const firebaseConfig = getActiveFirebaseConfig();
+export const firebaseConfig = getActiveFirebaseConfig();
 
 // Helper to determine if production Firebase is properly configured
 export const isLiveFirebaseConfigured = () => {
+  const cfg = getActiveFirebaseConfig();
   return (
-    firebaseConfig.apiKey &&
-    firebaseConfig.apiKey !== "YOUR_FIREBASE_API_KEY" &&
-    firebaseConfig.projectId !== "your-lifetap-project"
+    !!cfg.apiKey &&
+    cfg.apiKey !== "YOUR_FIREBASE_API_KEY" &&
+    cfg.projectId !== "your-lifetap-project"
   );
 };
+
+let firebaseApp = null;
+let authInstance = null;
+let dbInstance = null;
+
+/**
+ * Centralized Firebase Initializer
+ * Guarantees initializeApp() is executed once across all modules,
+ * even when accessed independently by unauthenticated rescuers on emergency.html.
+ */
+export function initFirebase() {
+  if (isLiveFirebaseConfigured() && typeof window !== 'undefined' && window.firebase) {
+    const config = getActiveFirebaseConfig();
+    if (!firebaseApp) {
+      try {
+        if (!window.firebase.apps || !window.firebase.apps.length) {
+          firebaseApp = window.firebase.initializeApp(config);
+        } else {
+          firebaseApp = window.firebase.app();
+        }
+      } catch (err) {
+        console.error("Firebase initializeApp error:", err);
+      }
+    }
+    if (firebaseApp) {
+      if (!authInstance && window.firebase.auth) {
+        try {
+          authInstance = window.firebase.auth();
+        } catch (e) {
+          console.error("Firebase auth() initialization error:", e);
+        }
+      }
+      if (!dbInstance && window.firebase.firestore) {
+        try {
+          dbInstance = window.firebase.firestore();
+        } catch (e) {
+          console.error("Firebase firestore() initialization error:", e);
+        }
+      }
+    }
+  }
+  return { firebaseApp, authInstance, dbInstance };
+}
+
+export function getFirebaseAuth() {
+  if (!authInstance) {
+    initFirebase();
+  }
+  return authInstance;
+}
+
+export function getFirestoreDb() {
+  if (!dbInstance) {
+    initFirebase();
+  }
+  return dbInstance;
+}
+
+// Early initialization if SDK scripts are already loaded
+if (typeof window !== 'undefined') {
+  initFirebase();
+}
 
 // Storage keys for local fallback mode
 const STORAGE_USERS_KEY = 'lifetap_users_db';
@@ -367,4 +431,4 @@ export function showFirebaseSetupModal() {
   }
 }
 
-export { firebaseConfig };
+

@@ -287,6 +287,7 @@
   <script type="module">
     import { renderFirebaseBanner } from './js/firebase-config.js';
     import { authService } from './js/auth.js';
+    import { qrManager } from './js/qr-manager.js';
 
     // Render environment status banner
     renderFirebaseBanner();
@@ -299,24 +300,25 @@
     }
 
     // Check if user is already logged in to customize nav
-    const currentUser = authService.getCurrentUser();
-    if (currentUser) {
-      const authSlot = document.getElementById('nav-auth-slot');
-      if (authSlot) {
-        authSlot.innerHTML = `<a href="dashboard.html" class="btn btn-secondary btn-sm">My Dashboard</a>`;
+    authService.onAuthStateChanged((currentUser) => {
+      if (currentUser) {
+        const authSlot = document.getElementById('nav-auth-slot');
+        if (authSlot) {
+          authSlot.innerHTML = `<a href="dashboard.html" class="btn btn-secondary btn-sm">My Dashboard</a>`;
+        }
+        const ctaBtn = document.getElementById('btn-nav-get-started');
+        if (ctaBtn) {
+          ctaBtn.textContent = 'Go to Dashboard';
+          ctaBtn.href = 'dashboard.html';
+        }
       }
-      const ctaBtn = document.getElementById('btn-nav-get-started');
-      if (ctaBtn) {
-        ctaBtn.textContent = 'Go to Dashboard';
-        ctaBtn.href = 'dashboard.html';
-      }
-    }
+    });
 
     // Render hero sample QR code
     window.addEventListener('DOMContentLoaded', () => {
       const qrEl = document.getElementById('hero-sample-qr');
       if (qrEl && window.QRCode) {
-        const demoUrl = `${window.location.origin}/emergency.html?token=demo-emergency-token-99`;
+        const demoUrl = qrManager.getEmergencyUrl('demo-emergency-token-99');
         new QRCode(qrEl, {
           text: demoUrl,
           width: 140,

@@ -6,17 +6,7 @@
  * to the publicly accessible emergency token document.
  */
 
-import { isLiveFirebaseConfigured, localDb } from './firebase-config.js';
-
-let dbInstance = null;
-
-if (isLiveFirebaseConfigured() && window.firebase) {
-  try {
-    dbInstance = firebase.firestore();
-  } catch (e) {
-    console.error("Firestore init error in privacy.js:", e);
-  }
-}
+import { getFirestoreDb, localDb } from './firebase-config.js';
 
 export const defaultPrivacySettings = {
   showFullName: true,
@@ -34,9 +24,10 @@ export const privacyService = {
   async getSettings(uid) {
     if (!uid) return defaultPrivacySettings;
 
-    if (dbInstance) {
+    const db = getFirestoreDb();
+    if (db) {
       try {
-        const doc = await dbInstance.collection('users').doc(uid).collection('settings').doc('privacy').get();
+        const doc = await db.collection('users').doc(uid).collection('settings').doc('privacy').get();
         if (doc.exists) {
           return { ...defaultPrivacySettings, ...doc.data() };
         }
@@ -57,9 +48,10 @@ export const privacyService = {
 
     const merged = { ...defaultPrivacySettings, ...settings };
 
-    if (dbInstance) {
+    const db = getFirestoreDb();
+    if (db) {
       try {
-        await dbInstance.collection('users').doc(uid).collection('settings').doc('privacy').set(merged);
+        await db.collection('users').doc(uid).collection('settings').doc('privacy').set(merged);
       } catch (err) {
         console.warn("Firestore privacy save failed, storing locally:", err);
       }

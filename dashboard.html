@@ -468,11 +468,27 @@
 
     renderFirebaseBanner();
 
-    // Guard: ensure user is authenticated
-    const currentUser = authService.requireAuth('auth.html');
-    if (!currentUser) {
-      throw new Error("Redirecting to login...");
-    }
+    let currentUser = null;
+    let isInitialized = false;
+
+    // Async Guard: ensure user is authenticated with Firebase Auth or LocalMockDatabase
+    authService.onAuthStateChanged(async (user) => {
+      if (!user) {
+        window.location.href = 'auth.html';
+        return;
+      }
+
+      currentUser = user;
+
+      // Display user email & name
+      if (footerUserEmail) footerUserEmail.textContent = currentUser.email || 'Member';
+      if (userDisplayNameEl) userDisplayNameEl.textContent = `Hello, ${currentUser.displayName || currentUser.email.split('@')[0]}`;
+
+      if (!isInitialized) {
+        isInitialized = true;
+        await initializeDashboard();
+      }
+    });
 
     // UI Elements
     const userDisplayNameEl = document.getElementById('user-display-name');
@@ -495,10 +511,6 @@
     const btnLogout = document.getElementById('btn-logout');
     const btnQuickPrint = document.getElementById('btn-quick-print');
     const btnPrintCardTab = document.getElementById('btn-print-card-tab');
-
-    // Display user email & name
-    footerUserEmail.textContent = currentUser.email || 'Member';
-    userDisplayNameEl.textContent = `Hello, ${currentUser.displayName || currentUser.email.split('@')[0]}`;
 
     // Tabs logic
     const tabButtons = document.querySelectorAll('.dash-tab-btn');
@@ -752,8 +764,8 @@
       }
     });
 
-    // Initialize
-    initializeDashboard();
+    // Event listeners and handlers are now active.
+    // Dashboard data loads via authService.onAuthStateChanged above.
   </script>
 </body>
 </html>
