@@ -3,59 +3,56 @@
    ========================================================================== */
 
 :root {
-  /* Color Palette - Modern Minimal SaaS Theme */
-  --color-primary: #27865B;         /* Elegant Green Accent */
-  --color-primary-hover: #1E6B48;   /* Deep Forest Green */
-  --color-primary-light: #E8F4EC;   /* Light Green Highlights */
-  --color-primary-subtle: #F2F9F5;  /* Soft Mint Tone */
-  --color-primary-glow: rgba(39, 134, 91, 0.22);
+  /* Color Palette - Light Mode */
+  --color-primary: #dc2626;         /* Emergency Crimson */
+  --color-primary-hover: #b91c1c;   /* Deep Crimson */
+  --color-primary-light: rgba(220, 38, 38, 0.12);
+  --color-primary-subtle: rgba(220, 38, 38, 0.05);
+  --color-primary-glow: rgba(220, 38, 38, 0.35);
 
-  --color-dark: #111827;            /* Dark Charcoal Typography */
-  --color-dark-muted: #374151;      /* Secondary Dark */
-  --color-muted: #6B7280;           /* Muted Grey */
-  --color-border: #E8ECE9;          /* Subtle Grey Borders */
-  --color-surface: #FFFFFF;
-  --color-surface-elevated: #FAFCFA;
-  --color-bg: #FFFFFF;
-  --color-bg-alt: #FAFCFA;
-  --header-bg: rgba(255, 255, 255, 0.88);
+  --color-dark: #0f172a;            /* Deep Slate / Text */
+  --color-dark-muted: #334155;      /* Body text secondary */
+  --color-muted: #64748b;           /* Tertiary text / borders */
+  --color-border: rgba(226, 232, 240, 0.85);
+  --color-surface: rgba(255, 255, 255, 0.78);
+  --color-surface-elevated: rgba(255, 255, 255, 0.92);
+  --color-bg: #f8fafc;
+  --color-bg-alt: #f1f5f9;
+  --header-bg: rgba(255, 255, 255, 0.82);
 
   /* Glassmorphism Tokens */
-  --glass-bg: rgba(255, 255, 255, 0.82);
-  --glass-border: #E8ECE9;
-  --glass-border-subtle: rgba(232, 236, 233, 0.6);
-  --glass-shadow: 0 10px 30px -5px rgba(17, 24, 39, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.6);
+  --glass-border-subtle: rgba(226, 232, 240, 0.6);
+  --glass-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8);
   --glass-blur: blur(16px);
 
   /* Status Colors */
-  --color-success: #27865B;
-  --color-success-bg: #E8F4EC;
-  --color-warning: #D97706;
+  --color-success: #16a34a;
+  --color-success-bg: rgba(22, 163, 74, 0.12);
+  --color-warning: #d97706;
   --color-warning-bg: rgba(217, 119, 6, 0.12);
-  --color-danger: #DC2626;          /* Red for Critical Emergency buttons */
-  --color-danger-bg: rgba(220, 38, 38, 0.1);
-  --color-info: #2563EB;            /* Accent Royal Blue */
-  --color-info-bg: #EFF6FF;
-
-  --accent-blue: #2563EB;
-  --accent-blue-hover: #1D4ED8;
+  --color-danger: #dc2626;
+  --color-danger-bg: rgba(220, 38, 38, 0.12);
+  --color-info: #0284c7;
+  --color-info-bg: rgba(2, 132, 199, 0.12);
 
   /* Typography */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
   /* Shadows */
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
-  --shadow-md: 0 6px 18px -2px rgba(17, 24, 39, 0.06), 0 2px 6px -1px rgba(17, 24, 39, 0.03);
-  --shadow-lg: 0 14px 30px -4px rgba(17, 24, 39, 0.08), 0 4px 12px -2px rgba(17, 24, 39, 0.04);
-  --shadow-xl: 0 24px 44px -6px rgba(17, 24, 39, 0.1), 0 8px 18px -4px rgba(17, 24, 39, 0.05);
-  --shadow-emergency: 0 10px 30px -5px rgba(220, 38, 38, 0.35);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 6px 16px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.05);
+  --shadow-lg: 0 12px 28px -4px rgba(15, 23, 42, 0.1), 0 4px 10px -2px rgba(15, 23, 42, 0.06);
+  --shadow-xl: 0 24px 38px -6px rgba(15, 23, 42, 0.12), 0 8px 16px -4px rgba(15, 23, 42, 0.08);
+  --shadow-emergency: 0 10px 30px -5px rgba(220, 38, 38, 0.45);
 
   /* Radii */
   --radius-sm: 8px;
   --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
   --radius-full: 9999px;
 
   /* Transitions */
@@ -68,37 +65,37 @@
    Dark Theme Overrides (Glassmorphism Dark)
    ========================================================================== */
 :root[data-theme="dark"], html.dark, body.dark {
-  --color-primary: #34D399;         /* Vibrant Emerald */
-  --color-primary-hover: #10B981;
-  --color-primary-light: rgba(52, 211, 153, 0.18);
-  --color-primary-subtle: rgba(52, 211, 153, 0.08);
-  --color-primary-glow: rgba(52, 211, 153, 0.35);
+  --color-primary: #ef4444;
+  --color-primary-hover: #f87171;
+  --color-primary-light: rgba(239, 68, 68, 0.2);
+  --color-primary-subtle: rgba(239, 68, 68, 0.1);
+  --color-primary-glow: rgba(239, 68, 68, 0.45);
 
-  --color-dark: #F9FAFB;
-  --color-dark-muted: #E5E7EB;
-  --color-muted: #9CA3AF;
-  --color-border: rgba(255, 255, 255, 0.1);
-  --color-surface: #111827;
-  --color-surface-elevated: #1F2937;
-  --color-bg: #0B0F17;
-  --color-bg-alt: #111827;
-  --header-bg: rgba(11, 15, 23, 0.88);
+  --color-dark: #f8fafc;
+  --color-dark-muted: #cbd5e1;
+  --color-muted: #94a3b8;
+  --color-border: rgba(255, 255, 255, 0.12);
+  --color-surface: rgba(15, 23, 42, 0.72);
+  --color-surface-elevated: rgba(30, 41, 59, 0.85);
+  --color-bg: #070a12;
+  --color-bg-alt: #0f172a;
+  --header-bg: rgba(11, 15, 25, 0.82);
 
   /* Glassmorphism Dark Tokens */
-  --glass-bg: rgba(17, 24, 39, 0.75);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-border-subtle: rgba(255, 255, 255, 0.05);
-  --glass-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --glass-bg: rgba(15, 23, 42, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-border-subtle: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   --glass-blur: blur(20px);
 
-  --color-success: #34D399;
-  --color-success-bg: rgba(52, 211, 153, 0.18);
-  --color-warning: #F59E0B;
+  --color-success: #22c55e;
+  --color-success-bg: rgba(34, 197, 94, 0.18);
+  --color-warning: #f59e0b;
   --color-warning-bg: rgba(245, 158, 11, 0.18);
-  --color-danger: #EF4444;
+  --color-danger: #ef4444;
   --color-danger-bg: rgba(239, 68, 68, 0.22);
-  --color-info: #60A5FA;
-  --color-info-bg: rgba(96, 165, 250, 0.18);
+  --color-info: #38bdf8;
+  --color-info-bg: rgba(56, 189, 248, 0.18);
 
   --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.6);
   --shadow-md: 0 6px 16px -2px rgba(0, 0, 0, 0.5), 0 2px 6px -1px rgba(0, 0, 0, 0.35);
@@ -127,9 +124,9 @@ body {
   font-family: var(--font-family);
   background-color: var(--color-bg);
   background-image: 
-    radial-gradient(at 10% 10%, rgba(39, 134, 91, 0.05) 0px, transparent 50%),
-    radial-gradient(at 90% 15%, rgba(37, 99, 235, 0.04) 0px, transparent 50%),
-    radial-gradient(at 50% 90%, rgba(39, 134, 91, 0.03) 0px, transparent 50%);
+    radial-gradient(at 10% 10%, rgba(220, 38, 38, 0.06) 0px, transparent 45%),
+    radial-gradient(at 90% 15%, rgba(14, 165, 233, 0.06) 0px, transparent 45%),
+    radial-gradient(at 50% 90%, rgba(99, 102, 241, 0.05) 0px, transparent 45%);
   background-attachment: fixed;
   background-size: cover;
   color: var(--color-dark);
@@ -146,11 +143,11 @@ body {
 }
 
 :root[data-theme="dark"] body, html.dark body, body.dark {
-  background-color: #0B0F17;
+  background-color: #070a12;
   background-image: 
-    radial-gradient(at 15% 15%, rgba(52, 211, 153, 0.08) 0px, transparent 55%),
-    radial-gradient(at 85% 20%, rgba(37, 99, 235, 0.08) 0px, transparent 50%),
-    radial-gradient(at 50% 85%, rgba(52, 211, 153, 0.05) 0px, transparent 55%);
+    radial-gradient(at 15% 15%, rgba(239, 68, 68, 0.16) 0px, transparent 55%),
+    radial-gradient(at 85% 20%, rgba(56, 189, 248, 0.12) 0px, transparent 50%),
+    radial-gradient(at 50% 85%, rgba(139, 92, 246, 0.1) 0px, transparent 55%);
 }
 
 img, svg {
@@ -232,7 +229,7 @@ button, input, select, textarea {
   border-color: var(--color-primary);
   transform: rotate(25deg) scale(1.1);
   color: var(--color-primary);
-  box-shadow: 0 4px 14px rgba(39, 134, 91, 0.2);
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.2);
 }
 
 .btn-theme-toggle:active {
@@ -265,7 +262,7 @@ button, input, select, textarea {
   align-items: center;
   justify-content: center;
   color: #fff;
-  box-shadow: 0 4px 10px rgba(39, 134, 91, 0.28);
+  box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3);
 }
 
 .brand-badge {
@@ -350,16 +347,16 @@ button, input, select, textarea {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #27865B 0%, #1E6B48 100%);
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
   color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 14px rgba(39, 134, 91, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #2E9C6B 0%, #27865B 100%);
+  background: linear-gradient(135deg, #f87171 0%, #ef4444 50%, #dc2626 100%);
   color: #ffffff;
-  box-shadow: 0 8px 22px rgba(39, 134, 91, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  box-shadow: 0 8px 24px rgba(220, 38, 38, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.4);
   transform: translateY(-2px);
 }
 

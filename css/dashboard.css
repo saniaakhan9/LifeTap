@@ -54,7 +54,7 @@
 .stat-card:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-lg);
-  border-color: rgba(39, 134, 91, 0.35);
+  border-color: rgba(220, 38, 38, 0.35);
 }
 
 .stat-icon {
