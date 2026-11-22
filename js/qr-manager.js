@@ -48,10 +48,16 @@ export const qrManager = {
         const userDoc = await db.collection('users').doc(uid).get();
         if (userDoc.exists) {
           const data = userDoc.data();
-          if (data.activeTokenId) {
-            const tokenDoc = await db.collection('emergency_tokens').doc(data.activeTokenId).get();
+          const activeTokenId = data.activeTokenId || localStorage.getItem(`lifetap_user_token_${uid}`);
+          if (activeTokenId) {
+            const tokenDoc = await db.collection('emergency_tokens').doc(activeTokenId).get();
             if (tokenDoc.exists) {
-              return tokenDoc.data();
+              const tokenData = tokenDoc.data();
+              return {
+                tokenId: activeTokenId,
+                active: tokenData.active !== false,
+                ...tokenData
+              };
             }
           }
         }
@@ -64,7 +70,10 @@ export const qrManager = {
     const key = `lifetap_user_token_${uid}`;
     const tokenId = localStorage.getItem(key);
     if (tokenId) {
-      return await localDb.getEmergencyToken(tokenId);
+      const rec = await localDb.getEmergencyToken(tokenId);
+      if (rec) {
+        return { tokenId, active: rec.active !== false, ...rec };
+      }
     }
     return null;
   },
@@ -72,7 +81,7 @@ export const qrManager = {
   // Initialize or fetch token for user
   async ensureUserToken(uid, profile, privacySettings) {
     let existing = await this.getUserTokenRecord(uid);
-    if (existing) {
+    if (existing && existing.tokenId) {
       return existing;
     }
     // Generate new token
@@ -81,7 +90,10 @@ export const qrManager = {
 
   // Create and register a brand new token
   async createTokenForUser(uid, profile, privacySettings) {
-    const tokenId = 'lt_' + generateSecureToken(16);
+    let tokenId = localStorage.getItem(`lifetap_user_token_${uid}`);
+    if (!tokenId) {
+      tokenId = 'lt_' + generateSecureToken(16);
+    }
     const publicData = privacyService.filterPublicEmergencyData(profile, privacySettings);
     
     const record = {
@@ -96,7 +108,7 @@ export const qrManager = {
     if (db) {
       try {
         // Save to public emergency_tokens registry
-        await db.collection('emergency_tokens').doc(tokenId).set(record);
+        await db.collection('emergency_tokens').doc(tokenId).set(record, { merge: true });
         // Link to user document
         await db.collection('users').doc(uid).set({ activeTokenId: tokenId }, { merge: true });
       } catch (err) {
@@ -113,18 +125,26 @@ export const qrManager = {
 
   // Sync latest profile & privacy updates to existing token
   async syncTokenData(uid, tokenId, profile, privacySettings) {
-    if (!tokenId) return;
+    if (!tokenId) {
+      console.warn("Cannot sync token data without tokenId");
+      return null;
+    }
 
     const publicData = privacyService.filterPublicEmergencyData(profile, privacySettings);
+    const tokenRecord = {
+      ...publicData,
+      tokenId: tokenId,
+      userId: uid,
+      active: true,
+      updatedAt: new Date().toISOString()
+    };
 
     const db = getFirestoreDb();
     if (db) {
       try {
-        await db.collection('emergency_tokens').doc(tokenId).set({
-          ...publicData,
-          userId: uid,
-          updatedAt: new Date().toISOString()
-        }, { merge: true });
+        await db.collection('emergency_tokens').doc(tokenId).set(tokenRecord, { merge: true });
+        await db.collection('users').doc(uid).set({ activeTokenId: tokenId }, { merge: true });
+        console.log("Token successfully synced to Firestore:", tokenId);
       } catch (err) {
         console.warn("Could not sync Firestore token:", err);
       }
@@ -133,9 +153,10 @@ export const qrManager = {
     const current = (await localDb.getEmergencyToken(tokenId)) || {};
     await localDb.saveEmergencyToken(tokenId, {
       ...current,
-      ...publicData,
-      userId: uid
+      ...tokenRecord
     });
+    localStorage.setItem(`lifetap_user_token_${uid}`, tokenId);
+    return tokenRecord;
   },
 
   // Toggle QR Active / Deactivated status

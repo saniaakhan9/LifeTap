@@ -26,8 +26,28 @@ export const profileService = {
       try {
         const doc = await db.collection('users').doc(uid).get();
         if (doc.exists) {
-          const remote = doc.data();
-          const merged = { ...localData, ...remote };
+          const remote = doc.data() || {};
+          let merged = { ...remote };
+
+          // Smart merge: if localData has filled values, don't let empty remote fields overwrite them
+          if (localData && typeof localData === 'object') {
+            if (localData.updatedAt && remote.updatedAt) {
+              if (new Date(localData.updatedAt) > new Date(remote.updatedAt)) {
+                merged = { ...remote, ...localData };
+              } else {
+                merged = { ...localData, ...remote };
+              }
+            } else {
+              // Merge preserving non-empty values from both
+              merged = { ...localData };
+              Object.keys(remote).forEach(key => {
+                if (remote[key] !== undefined && remote[key] !== null && remote[key] !== '') {
+                  merged[key] = remote[key];
+                }
+              });
+            }
+          }
+
           try {
             localStorage.setItem(`lifetap_profile_${uid}`, JSON.stringify(merged));
             await localDb.saveUserProfile(uid, merged);
@@ -45,19 +65,20 @@ export const profileService = {
   async saveProfile(uid, profileData) {
     if (!uid) throw new Error("User ID is required to save profile.");
 
+    const now = new Date().toISOString();
     const sanitized = {
-      fullName: profileData.fullName?.trim() || '',
-      bloodGroup: profileData.bloodGroup || '',
-      allergies: profileData.allergies?.trim() || '',
-      conditions: profileData.conditions?.trim() || '',
-      medications: profileData.medications?.trim() || '',
-      emergencyContact1Name: profileData.emergencyContact1Name?.trim() || '',
-      emergencyContact1Phone: profileData.emergencyContact1Phone?.trim() || '',
-      emergencyContact2Name: profileData.emergencyContact2Name?.trim() || '',
-      emergencyContact2Phone: profileData.emergencyContact2Phone?.trim() || '',
-      instructions: profileData.instructions?.trim() || '',
+      fullName: (profileData.fullName || '').trim(),
+      bloodGroup: (profileData.bloodGroup || '').trim(),
+      allergies: (profileData.allergies || '').trim(),
+      conditions: (profileData.conditions || '').trim(),
+      medications: (profileData.medications || '').trim(),
+      emergencyContact1Name: (profileData.emergencyContact1Name || '').trim(),
+      emergencyContact1Phone: (profileData.emergencyContact1Phone || '').trim(),
+      emergencyContact2Name: (profileData.emergencyContact2Name || '').trim(),
+      emergencyContact2Phone: (profileData.emergencyContact2Phone || '').trim(),
+      instructions: (profileData.instructions || '').trim(),
       isOrganDonor: !!profileData.isOrganDonor,
-      updatedAt: new Date().toISOString()
+      updatedAt: now
     };
 
     // 1. ALWAYS persist locally immediately so data is NEVER lost
@@ -73,6 +94,7 @@ export const profileService = {
     if (db) {
       try {
         await db.collection('users').doc(uid).set(sanitized, { merge: true });
+        console.log("Profile successfully saved to Firestore for UID:", uid);
       } catch (err) {
         console.warn("Firestore save failed, fallback already in local storage:", err);
       }

@@ -610,8 +610,25 @@
     }
 
     function populateProfileForm(p) {
+      if (!p) return;
       document.getElementById('prof-fullName').value = p.fullName || '';
-      document.getElementById('prof-bloodGroup').value = p.bloodGroup || '';
+      
+      const bgSelect = document.getElementById('prof-bloodGroup');
+      if (bgSelect) {
+        const val = (p.bloodGroup || '').trim();
+        let matched = false;
+        for (let i = 0; i < bgSelect.options.length; i++) {
+          if (bgSelect.options[i].value.toLowerCase() === val.toLowerCase()) {
+            bgSelect.selectedIndex = i;
+            matched = true;
+            break;
+          }
+        }
+        if (!matched) {
+          bgSelect.value = '';
+        }
+      }
+
       document.getElementById('prof-allergies').value = p.allergies || '';
       document.getElementById('prof-conditions').value = p.conditions || '';
       document.getElementById('prof-medications').value = p.medications || '';
@@ -641,7 +658,7 @@
       statProgressFill.style.width = `${completeness}%`;
 
       // Contacts
-      if (profileData.emergencyContact1Name) {
+      if (profileData && profileData.emergencyContact1Name) {
         statPrimaryContact.textContent = profileData.emergencyContact1Name;
         statContactPhone.textContent = profileData.emergencyContact1Phone || 'Phone missing';
       } else {
@@ -650,7 +667,7 @@
       }
 
       // QR Status & Render
-      if (tokenRecord) {
+      if (tokenRecord && tokenRecord.tokenId) {
         const isActive = tokenRecord.active !== false;
         statTokenId.textContent = tokenRecord.tokenId;
         qrTokenDisplay.textContent = tokenRecord.tokenId;
@@ -688,33 +705,50 @@
       e.preventDefault();
       const btn = document.getElementById('btn-save-profile');
       btn.disabled = true;
-      btn.textContent = 'Saving...';
+      btn.textContent = 'Saving Profile...';
+
+      const user = currentUser || authService.getCurrentUser();
+      if (!user || !user.uid) {
+        showToast('Please sign in to save your profile.', 'error');
+        btn.disabled = false;
+        btn.textContent = '💾 Save Profile & Update QR';
+        setTimeout(() => { window.location.href = 'auth.html'; }, 800);
+        return;
+      }
+      currentUser = user;
 
       profileData = {
-        fullName: document.getElementById('prof-fullName').value,
-        bloodGroup: document.getElementById('prof-bloodGroup').value,
-        allergies: document.getElementById('prof-allergies').value,
-        conditions: document.getElementById('prof-conditions').value,
-        medications: document.getElementById('prof-medications').value,
+        fullName: document.getElementById('prof-fullName').value.trim(),
+        bloodGroup: document.getElementById('prof-bloodGroup').value.trim(),
+        allergies: document.getElementById('prof-allergies').value.trim(),
+        conditions: document.getElementById('prof-conditions').value.trim(),
+        medications: document.getElementById('prof-medications').value.trim(),
         isOrganDonor: document.getElementById('prof-isOrganDonor').checked,
-        emergencyContact1Name: document.getElementById('prof-c1-name').value,
-        emergencyContact1Phone: document.getElementById('prof-c1-phone').value,
-        emergencyContact2Name: document.getElementById('prof-c2-name').value,
-        emergencyContact2Phone: document.getElementById('prof-c2-phone').value,
-        instructions: document.getElementById('prof-instructions').value
+        emergencyContact1Name: document.getElementById('prof-c1-name').value.trim(),
+        emergencyContact1Phone: document.getElementById('prof-c1-phone').value.trim(),
+        emergencyContact2Name: document.getElementById('prof-c2-name').value.trim(),
+        emergencyContact2Phone: document.getElementById('prof-c2-phone').value.trim(),
+        instructions: document.getElementById('prof-instructions').value.trim()
       };
 
       try {
-        await profileService.saveProfile(currentUser.uid, profileData);
-        // Sync public token data
-        if (!tokenRecord) {
+        const saved = await profileService.saveProfile(currentUser.uid, profileData);
+        profileData = saved;
+
+        const currentPrivacy = privacyData || await privacyService.getSettings(currentUser.uid);
+        privacyData = currentPrivacy;
+
+        if (!tokenRecord || !tokenRecord.tokenId) {
           tokenRecord = await qrManager.ensureUserToken(currentUser.uid, profileData, privacyData);
         }
-        if (tokenRecord?.tokenId) {
-          await qrManager.syncTokenData(currentUser.uid, tokenRecord.tokenId, profileData, privacyData);
+        if (tokenRecord && tokenRecord.tokenId) {
+          const synced = await qrManager.syncTokenData(currentUser.uid, tokenRecord.tokenId, profileData, privacyData);
+          tokenRecord = { ...tokenRecord, ...synced };
         }
-        showToast('Emergency profile saved successfully!', 'success');
+
+        populateProfileForm(profileData);
         updateStatsAndQR();
+        showToast('Profile & Emergency QR saved successfully!', 'success');
       } catch (err) {
         console.error("Save profile error:", err);
         showToast(err.message || 'Error saving profile', 'error');
@@ -731,6 +765,14 @@
       btn.disabled = true;
       btn.textContent = 'Updating...';
 
+      const user = currentUser || authService.getCurrentUser();
+      if (!user || !user.uid) {
+        btn.disabled = false;
+        btn.textContent = '🔒 Save Privacy Preferences';
+        return;
+      }
+      currentUser = user;
+
       privacyData = {
         showFullName: document.getElementById('priv-showFullName').checked,
         showBloodGroup: document.getElementById('priv-showBloodGroup').checked,
@@ -744,7 +786,7 @@
 
       try {
         await privacyService.saveSettings(currentUser.uid, privacyData);
-        if (tokenRecord?.tokenId) {
+        if (tokenRecord && tokenRecord.tokenId) {
           await qrManager.syncTokenData(currentUser.uid, tokenRecord.tokenId, profileData, privacyData);
         }
         showToast('Privacy preferences updated!', 'success');

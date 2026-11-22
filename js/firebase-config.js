@@ -72,6 +72,9 @@ export function initFirebase() {
       if (!authInstance && window.firebase.auth) {
         try {
           authInstance = window.firebase.auth();
+          if (window.firebase?.auth?.Auth?.Persistence) {
+            authInstance.setPersistence(window.firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
+          }
         } catch (e) {
           console.error("Firebase auth() initialization error:", e);
         }

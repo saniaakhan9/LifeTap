@@ -374,13 +374,20 @@ body.emergency-body {
     gap: 0.85rem;
   }
   .blood-group-badge-lg {
-    width: 58px;
-    height: 58px;
-    min-width: 58px;
-    max-width: 58px;
+    width: 62px;
+    height: 62px;
+    min-width: 62px;
+    max-width: 62px;
+    padding: 3px;
+    overflow: hidden;
   }
   .blood-group-badge-lg .val {
-    font-size: 1.25rem;
+    font-size: 1.15rem;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
   }
   .patient-name {
     font-size: 1.25rem;

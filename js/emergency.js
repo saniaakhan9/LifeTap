@@ -15,19 +15,26 @@ export const emergencyService = {
       try {
         const doc = await db.collection('emergency_tokens').doc(tokenId).get();
         if (doc.exists) {
-          return doc.data();
+          const remoteData = doc.data();
+          try {
+            await localDb.saveEmergencyToken(tokenId, remoteData);
+          } catch(e) {}
+          return remoteData;
         }
-        return null;
       } catch (err) {
         console.warn("Firestore emergency token lookup failed:", err);
-        // If security rules rejected reading because token is inactive/revoked
-        if (err.code === 'permission-denied' || (err.message && err.message.includes('permission'))) {
-          return { active: false, revoked: true };
-        }
       }
     }
 
-    return await localDb.getEmergencyToken(tokenId);
+    // Fallback to local storage / localDb
+    try {
+      const local = await localDb.getEmergencyToken(tokenId);
+      if (local) {
+        return local;
+      }
+    } catch(e) {}
+
+    return null;
   }
 };
 
@@ -98,10 +105,10 @@ export function initializeEmergencyResponderPage() {
         bg = 'N/A';
       }
       bloodValEl.textContent = bg;
-      if (bg.length > 3) {
+      if (bg.length > 2) {
         bloodValEl.style.fontSize = '0.95rem';
       } else {
-        bloodValEl.style.fontSize = '';
+        bloodValEl.style.fontSize = '1.45rem';
       }
     }
 
@@ -114,9 +121,10 @@ export function initializeEmergencyResponderPage() {
     // Critical Allergies
     const allergyBox = document.getElementById('resp-allergy-box');
     const allergyText = document.getElementById('resp-allergies');
-    if (data.allergies && data.allergies.trim()) {
+    const allergies = (data.allergies || '').trim();
+    if (allergies && !['none', 'none reported', 'no known allergies', 'no allergies', 'n/a'].includes(allergies.toLowerCase())) {
       allergyBox.style.display = 'block';
-      allergyText.textContent = data.allergies;
+      allergyText.textContent = allergies;
     } else {
       allergyBox.style.display = 'none';
     }
@@ -124,9 +132,10 @@ export function initializeEmergencyResponderPage() {
     // Medical Conditions
     const conditionsSection = document.getElementById('resp-section-conditions');
     const conditionsText = document.getElementById('resp-conditions');
-    if (data.conditions && data.conditions.trim()) {
+    const conditions = (data.conditions || '').trim();
+    if (conditions && !['none', 'none reported', 'n/a'].includes(conditions.toLowerCase())) {
       conditionsSection.style.display = 'block';
-      conditionsText.textContent = data.conditions;
+      conditionsText.textContent = conditions;
     } else {
       conditionsSection.style.display = 'none';
     }
@@ -134,9 +143,10 @@ export function initializeEmergencyResponderPage() {
     // Medications
     const medsSection = document.getElementById('resp-section-meds');
     const medsText = document.getElementById('resp-medications');
-    if (data.medications && data.medications.trim()) {
+    const meds = (data.medications || '').trim();
+    if (meds && !['none', 'none reported', 'n/a'].includes(meds.toLowerCase())) {
       medsSection.style.display = 'block';
-      medsText.textContent = data.medications;
+      medsText.textContent = meds;
     } else {
       medsSection.style.display = 'none';
     }
@@ -144,9 +154,10 @@ export function initializeEmergencyResponderPage() {
     // Emergency Instructions
     const instructionsSection = document.getElementById('resp-section-instructions');
     const instructionsText = document.getElementById('resp-instructions');
-    if (data.instructions && data.instructions.trim()) {
+    const instructions = (data.instructions || '').trim();
+    if (instructions && !['none', 'none reported', 'no custom instructions provided.', 'n/a'].includes(instructions.toLowerCase())) {
       instructionsSection.style.display = 'block';
-      instructionsText.textContent = data.instructions;
+      instructionsText.textContent = instructions;
     } else {
       instructionsSection.style.display = 'none';
     }
@@ -154,10 +165,10 @@ export function initializeEmergencyResponderPage() {
     // Primary Call Button
     const callBtn1 = document.getElementById('resp-call-btn-1');
     const callText1 = document.getElementById('resp-call-text-1');
-    if (data.emergencyContact1Phone) {
+    if (data.emergencyContact1Phone && data.emergencyContact1Phone.trim()) {
       const cleanPhone = data.emergencyContact1Phone.replace(/[^\d+]/g, '');
       callBtn1.href = `tel:${cleanPhone}`;
-      callText1.textContent = `Call ${data.emergencyContact1Name || 'Emergency Contact'} (${data.emergencyContact1Phone})`;
+      callText1.textContent = `Call ${data.emergencyContact1Name || 'Emergency Contact'} (${data.emergencyContact1Phone.trim()})`;
       callBtn1.style.display = 'flex';
     } else {
       callBtn1.style.display = 'none';
@@ -166,10 +177,10 @@ export function initializeEmergencyResponderPage() {
     // Secondary Call Button
     const callBtn2 = document.getElementById('resp-call-btn-2');
     const callText2 = document.getElementById('resp-call-text-2');
-    if (data.emergencyContact2Phone) {
+    if (data.emergencyContact2Phone && data.emergencyContact2Phone.trim()) {
       const cleanPhone2 = data.emergencyContact2Phone.replace(/[^\d+]/g, '');
       callBtn2.href = `tel:${cleanPhone2}`;
-      callText2.textContent = `Call ${data.emergencyContact2Name || 'Backup Contact'} (${data.emergencyContact2Phone})`;
+      callText2.textContent = `Call ${data.emergencyContact2Name || 'Backup Contact'} (${data.emergencyContact2Phone.trim()})`;
       callBtn2.style.display = 'flex';
     } else {
       callBtn2.style.display = 'none';
