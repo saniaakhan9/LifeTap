@@ -143,7 +143,7 @@
           <span style="font-size:0.85rem; color:var(--color-muted);">Public visibility is controlled in Privacy tab</span>
         </div>
 
-        <form id="profile-form" autocomplete="off">
+        <form id="profile-form" onsubmit="return false;" autocomplete="off">
           <!-- Personal Info -->
           <div class="form-grid-2">
             <div class="form-group">
@@ -245,7 +245,7 @@
           </div>
 
           <div style="display:flex; justify-content:flex-end;">
-            <button type="submit" class="btn btn-primary btn-lg" id="btn-save-profile">
+            <button type="button" class="btn btn-primary btn-lg" id="btn-save-profile">
               💾 Save Profile & Update QR
             </button>
           </div>
@@ -266,7 +266,7 @@
           Choose exactly what emergency responders can view when they scan your QR code. Unchecked fields remain strictly encrypted and confidential in your private account.
         </p>
 
-        <form id="privacy-form">
+        <form id="privacy-form" onsubmit="return false;">
           <label class="switch-label">
             <div class="switch-info">
               <span class="switch-title">Display Full Name</span>
@@ -356,7 +356,7 @@
           </label>
 
           <div style="display:flex; justify-content:flex-end; margin-top:2rem;">
-            <button type="submit" class="btn btn-primary" id="btn-save-privacy">
+            <button type="button" class="btn btn-primary" id="btn-save-privacy">
               🔒 Save Privacy Preferences
             </button>
           </div>
@@ -485,46 +485,7 @@
     setupThemeToggleButtons();
     renderFirebaseBanner();
 
-    let currentUser = null;
-    let isInitialized = false;
-
-    // Fast-path: Restore cached session immediately to prevent screen blink or false redirect
-    const cachedUser = authService.getCurrentUser();
-    if (cachedUser) {
-      currentUser = cachedUser;
-      if (footerUserEmail) footerUserEmail.textContent = currentUser.email || 'Member';
-      if (userDisplayNameEl) userDisplayNameEl.textContent = `Hello, ${currentUser.displayName || currentUser.email.split('@')[0]}`;
-      if (!isInitialized) {
-        isInitialized = true;
-        initializeDashboard();
-      }
-    }
-
-    // Async Guard: ensure user is authenticated with Firebase Auth or LocalMockDatabase
-    authService.onAuthStateChanged(async (user) => {
-      if (!user) {
-        // Double check cache before redirecting to avoid false bounce
-        setTimeout(() => {
-          if (!authService.getCurrentUser()) {
-            window.location.href = 'auth.html';
-          }
-        }, 600);
-        return;
-      }
-
-      currentUser = user;
-
-      // Display user email & name
-      if (footerUserEmail) footerUserEmail.textContent = currentUser.email || 'Member';
-      if (userDisplayNameEl) userDisplayNameEl.textContent = `Hello, ${currentUser.displayName || currentUser.email.split('@')[0]}`;
-
-      if (!isInitialized) {
-        isInitialized = true;
-        await initializeDashboard();
-      }
-    });
-
-    // UI Elements
+    // UI Elements - declared first to prevent any ReferenceError
     const userDisplayNameEl = document.getElementById('user-display-name');
     const footerUserEmail = document.getElementById('footer-user-email');
     const statCompleteness = document.getElementById('stat-completeness');
@@ -545,6 +506,52 @@
     const btnLogout = document.getElementById('btn-logout');
     const btnQuickPrint = document.getElementById('btn-quick-print');
     const btnPrintCardTab = document.getElementById('btn-print-card-tab');
+    const btnSaveProfile = document.getElementById('btn-save-profile');
+    const profileForm = document.getElementById('profile-form');
+    const btnSavePrivacy = document.getElementById('btn-save-privacy');
+    const privacyForm = document.getElementById('privacy-form');
+
+    let currentUser = null;
+    let isInitialized = false;
+
+    // Fast-path: Restore cached session immediately to prevent screen blink or false redirect
+    try {
+      const cachedUser = authService.getCurrentUser();
+      if (cachedUser) {
+        currentUser = cachedUser;
+        if (footerUserEmail) footerUserEmail.textContent = currentUser.email || 'Member';
+        if (userDisplayNameEl) userDisplayNameEl.textContent = `Hello, ${currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : 'Member')}`;
+        if (!isInitialized) {
+          isInitialized = true;
+          initializeDashboard();
+        }
+      }
+    } catch(e) {
+      console.warn("Cached session fast-path warning:", e);
+    }
+
+    // Async Guard: ensure user is authenticated with Firebase Auth or LocalMockDatabase
+    authService.onAuthStateChanged(async (user) => {
+      if (!user) {
+        setTimeout(() => {
+          if (!authService.getCurrentUser()) {
+            window.location.href = 'auth.html';
+          }
+        }, 600);
+        return;
+      }
+
+      currentUser = user;
+
+      // Display user email & name
+      if (footerUserEmail) footerUserEmail.textContent = currentUser.email || 'Member';
+      if (userDisplayNameEl) userDisplayNameEl.textContent = `Hello, ${currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : 'Member')}`;
+
+      if (!isInitialized) {
+        isInitialized = true;
+        await initializeDashboard();
+      }
+    });
 
     // Tabs logic
     const tabButtons = document.querySelectorAll('.dash-tab-btn');
@@ -556,23 +563,30 @@
         tabButtons.forEach(b => b.classList.remove('active'));
         tabPanels.forEach(p => p.classList.remove('active'));
         btn.classList.add('active');
-        document.getElementById(targetId).classList.add('active');
+        const targetEl = document.getElementById(targetId);
+        if (targetEl) targetEl.classList.add('active');
       });
     });
 
     // Logout
-    btnLogout.addEventListener('click', async () => {
-      await authService.logout();
-      window.location.href = 'index.html';
-    });
+    if (btnLogout) {
+      btnLogout.addEventListener('click', async () => {
+        await authService.logout();
+        window.location.href = 'index.html';
+      });
+    }
 
     // Printing
-    btnQuickPrint.addEventListener('click', () => {
-      // switch to card tab and print
-      document.querySelector('[data-tab="tab-card"]').click();
-      setTimeout(() => cardGenerator.triggerPrint(), 150);
-    });
-    btnPrintCardTab.addEventListener('click', () => cardGenerator.triggerPrint());
+    if (btnQuickPrint) {
+      btnQuickPrint.addEventListener('click', () => {
+        const cardTabBtn = document.querySelector('[data-tab="tab-card"]');
+        if (cardTabBtn) cardTabBtn.click();
+        setTimeout(() => cardGenerator.triggerPrint(), 150);
+      });
+    }
+    if (btnPrintCardTab) {
+      btnPrintCardTab.addEventListener('click', () => cardGenerator.triggerPrint());
+    }
 
     // Current State
     let profileData = null;
@@ -580,33 +594,38 @@
     let tokenRecord = null;
 
     async function initializeDashboard() {
-      const uid = currentUser.uid;
+      try {
+        const uid = currentUser?.uid;
+        if (!uid) return;
 
-      // 1. Fetch Profile
-      profileData = await profileService.getProfile(uid) || {
-        fullName: currentUser.displayName || '',
-        bloodGroup: '',
-        allergies: '',
-        conditions: '',
-        medications: '',
-        emergencyContact1Name: '',
-        emergencyContact1Phone: '',
-        emergencyContact2Name: '',
-        emergencyContact2Phone: '',
-        instructions: '',
-        isOrganDonor: false
-      };
-      populateProfileForm(profileData);
+        // 1. Fetch Profile
+        profileData = await profileService.getProfile(uid) || {
+          fullName: currentUser.displayName || '',
+          bloodGroup: '',
+          allergies: '',
+          conditions: '',
+          medications: '',
+          emergencyContact1Name: '',
+          emergencyContact1Phone: '',
+          emergencyContact2Name: '',
+          emergencyContact2Phone: '',
+          instructions: '',
+          isOrganDonor: false
+        };
+        populateProfileForm(profileData);
 
-      // 2. Fetch Privacy
-      privacyData = await privacyService.getSettings(uid);
-      populatePrivacyForm(privacyData);
+        // 2. Fetch Privacy
+        privacyData = await privacyService.getSettings(uid);
+        populatePrivacyForm(privacyData);
 
-      // 3. Ensure Token Record
-      tokenRecord = await qrManager.ensureUserToken(uid, profileData, privacyData);
+        // 3. Ensure Token Record
+        tokenRecord = await qrManager.ensureUserToken(uid, profileData, privacyData);
 
-      // 4. Update UI
-      updateStatsAndQR();
+        // 4. Update UI
+        updateStatsAndQR();
+      } catch (err) {
+        console.error("Dashboard initialization error:", err);
+      }
     }
 
     function populateProfileForm(p) {
@@ -700,35 +719,39 @@
       }
     }
 
-    // Save Profile Form
-    document.getElementById('profile-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
+    // Save Profile Handler
+    async function handleSaveProfile(e) {
+      if (e && e.preventDefault) e.preventDefault();
       const btn = document.getElementById('btn-save-profile');
-      btn.disabled = true;
-      btn.textContent = 'Saving Profile...';
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Saving Profile...';
+      }
 
       const user = currentUser || authService.getCurrentUser();
       if (!user || !user.uid) {
         showToast('Please sign in to save your profile.', 'error');
-        btn.disabled = false;
-        btn.textContent = '💾 Save Profile & Update QR';
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = '💾 Save Profile & Update QR';
+        }
         setTimeout(() => { window.location.href = 'auth.html'; }, 800);
         return;
       }
       currentUser = user;
 
       profileData = {
-        fullName: document.getElementById('prof-fullName').value.trim(),
-        bloodGroup: document.getElementById('prof-bloodGroup').value.trim(),
-        allergies: document.getElementById('prof-allergies').value.trim(),
-        conditions: document.getElementById('prof-conditions').value.trim(),
-        medications: document.getElementById('prof-medications').value.trim(),
-        isOrganDonor: document.getElementById('prof-isOrganDonor').checked,
-        emergencyContact1Name: document.getElementById('prof-c1-name').value.trim(),
-        emergencyContact1Phone: document.getElementById('prof-c1-phone').value.trim(),
-        emergencyContact2Name: document.getElementById('prof-c2-name').value.trim(),
-        emergencyContact2Phone: document.getElementById('prof-c2-phone').value.trim(),
-        instructions: document.getElementById('prof-instructions').value.trim()
+        fullName: (document.getElementById('prof-fullName')?.value || '').trim(),
+        bloodGroup: (document.getElementById('prof-bloodGroup')?.value || '').trim(),
+        allergies: (document.getElementById('prof-allergies')?.value || '').trim(),
+        conditions: (document.getElementById('prof-conditions')?.value || '').trim(),
+        medications: (document.getElementById('prof-medications')?.value || '').trim(),
+        isOrganDonor: !!document.getElementById('prof-isOrganDonor')?.checked,
+        emergencyContact1Name: (document.getElementById('prof-c1-name')?.value || '').trim(),
+        emergencyContact1Phone: (document.getElementById('prof-c1-phone')?.value || '').trim(),
+        emergencyContact2Name: (document.getElementById('prof-c2-name')?.value || '').trim(),
+        emergencyContact2Phone: (document.getElementById('prof-c2-phone')?.value || '').trim(),
+        instructions: (document.getElementById('prof-instructions')?.value || '').trim()
       };
 
       try {
@@ -753,35 +776,48 @@
         console.error("Save profile error:", err);
         showToast(err.message || 'Error saving profile', 'error');
       } finally {
-        btn.disabled = false;
-        btn.textContent = '💾 Save Profile & Update QR';
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = '💾 Save Profile & Update QR';
+        }
       }
-    });
+    }
 
-    // Save Privacy Form
-    document.getElementById('privacy-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
+    if (btnSaveProfile) {
+      btnSaveProfile.addEventListener('click', handleSaveProfile);
+    }
+    if (profileForm) {
+      profileForm.addEventListener('submit', handleSaveProfile);
+    }
+
+    // Save Privacy Handler
+    async function handleSavePrivacy(e) {
+      if (e && e.preventDefault) e.preventDefault();
       const btn = document.getElementById('btn-save-privacy');
-      btn.disabled = true;
-      btn.textContent = 'Updating...';
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Updating...';
+      }
 
       const user = currentUser || authService.getCurrentUser();
       if (!user || !user.uid) {
-        btn.disabled = false;
-        btn.textContent = '🔒 Save Privacy Preferences';
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = '🔒 Save Privacy Preferences';
+        }
         return;
       }
       currentUser = user;
 
       privacyData = {
-        showFullName: document.getElementById('priv-showFullName').checked,
-        showBloodGroup: document.getElementById('priv-showBloodGroup').checked,
-        showAllergies: document.getElementById('priv-showAllergies').checked,
-        showConditions: document.getElementById('priv-showConditions').checked,
-        showMedications: document.getElementById('priv-showMedications').checked,
-        showContact2: document.getElementById('priv-showContact2').checked,
-        showInstructions: document.getElementById('priv-showInstructions').checked,
-        showOrganDonor: document.getElementById('priv-showOrganDonor').checked
+        showFullName: !!document.getElementById('priv-showFullName')?.checked,
+        showBloodGroup: !!document.getElementById('priv-showBloodGroup')?.checked,
+        showAllergies: !!document.getElementById('priv-showAllergies')?.checked,
+        showConditions: !!document.getElementById('priv-showConditions')?.checked,
+        showMedications: !!document.getElementById('priv-showMedications')?.checked,
+        showContact2: !!document.getElementById('priv-showContact2')?.checked,
+        showInstructions: !!document.getElementById('priv-showInstructions')?.checked,
+        showOrganDonor: !!document.getElementById('priv-showOrganDonor')?.checked
       };
 
       try {
@@ -794,10 +830,19 @@
       } catch (err) {
         showToast('Failed to save privacy settings', 'error');
       } finally {
-        btn.disabled = false;
-        btn.textContent = '🔒 Save Privacy Preferences';
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = '🔒 Save Privacy Preferences';
+        }
       }
-    });
+    }
+
+    if (btnSavePrivacy) {
+      btnSavePrivacy.addEventListener('click', handleSavePrivacy);
+    }
+    if (privacyForm) {
+      privacyForm.addEventListener('submit', handleSavePrivacy);
+    }
 
     // Toggle QR active switch
     switchQrActive.addEventListener('change', async () => {
