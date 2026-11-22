@@ -139,13 +139,6 @@
     setupThemeToggleButtons();
     renderFirebaseBanner();
 
-    // Check if already authenticated via Firebase Auth or LocalMockDatabase
-    authService.onAuthStateChanged((user) => {
-      if (user) {
-        window.location.href = 'dashboard.html';
-      }
-    });
-
     // State
     let currentMode = 'login'; // 'login' or 'register'
 
@@ -172,9 +165,18 @@
 
     // Parse URL parameter ?mode=register
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('mode') === 'register') {
+    const requestedMode = urlParams.get('mode');
+
+    if (requestedMode === 'register') {
       setMode('register');
     }
+
+    // Only auto-redirect to dashboard if user is already signed in AND NOT on register mode
+    authService.onAuthStateChanged((user) => {
+      if (user && currentMode !== 'register' && requestedMode !== 'register') {
+        window.location.href = 'dashboard.html';
+      }
+    });
 
     function setMode(mode) {
       currentMode = mode;
@@ -191,7 +193,14 @@
         inputName.required = true;
         btnText.textContent = 'Create LifeTap ID';
         authFooterText.innerHTML = `Already have an ID? <a href="#" id="link-to-login" style="font-weight:600;">Sign in here</a>`;
-        document.getElementById('link-to-login').onclick = (e) => { e.preventDefault(); setMode('login'); };
+        const linkToLogin = document.getElementById('link-to-login');
+        if (linkToLogin) {
+          linkToLogin.onclick = (e) => { e.preventDefault(); setMode('login'); };
+        }
+        // Clear fields on switching to register so old credentials don't auto-fill
+        inputName.value = '';
+        inputEmail.value = '';
+        inputPassword.value = '';
       } else {
         tabLogin.classList.add('active');
         tabRegister.classList.remove('active');
@@ -201,7 +210,10 @@
         inputName.required = false;
         btnText.textContent = 'Sign In';
         authFooterText.innerHTML = `Don't have an ID yet? <a href="#" id="link-to-register" style="font-weight:600;">Create an account</a>`;
-        document.getElementById('link-to-register').onclick = (e) => { e.preventDefault(); setMode('register'); };
+        const linkToRegister = document.getElementById('link-to-register');
+        if (linkToRegister) {
+          linkToRegister.onclick = (e) => { e.preventDefault(); setMode('register'); };
+        }
       }
     }
 
@@ -211,7 +223,6 @@
       e.preventDefault();
       setMode(currentMode === 'login' ? 'register' : 'login');
     });
-
 
     // Password reset toggle
     linkForgot.addEventListener('click', (e) => {
@@ -247,6 +258,7 @@
     function showAlert(msg, type = 'error') {
       authAlert.textContent = msg;
       authAlert.className = `auth-alert ${type}`;
+      authAlert.style.display = 'block';
     }
 
     function hideAlert() {
@@ -270,8 +282,28 @@
       const password = inputPassword.value;
       const displayName = inputName.value.trim();
 
+      if (!email || !password) {
+        showAlert('Please fill in both email and password.', 'error');
+        setLoading(false);
+        return;
+      }
+
+      if (currentMode === 'register' && !displayName) {
+        showAlert('Please enter your full legal name.', 'error');
+        setLoading(false);
+        return;
+      }
+
+      if (password.length < 6) {
+        showAlert('Password must be at least 6 characters.', 'error');
+        setLoading(false);
+        return;
+      }
+
       try {
         if (currentMode === 'register') {
+          // Cleanly logout any existing session before creating new user
+          await authService.logout();
           await authService.register(email, password, displayName);
           showToast('Account created successfully! Welcome to LifeTap.', 'success');
         } else {
@@ -282,7 +314,18 @@
           window.location.href = 'dashboard.html';
         }, 500);
       } catch (err) {
-        showAlert(err.message || 'Authentication failed. Please check your credentials.', 'error');
+        console.error("Auth error:", err);
+        let msg = err.message || 'Authentication failed. Please check your credentials.';
+        if (err.code === 'auth/email-already-in-use') {
+          msg = 'This email is already registered. Please sign in instead.';
+        } else if (err.code === 'auth/weak-password') {
+          msg = 'Password should be at least 6 characters.';
+        } else if (err.code === 'auth/invalid-email') {
+          msg = 'Please enter a valid email address.';
+        } else if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+          msg = 'Incorrect email or password. Please try again.';
+        }
+        showAlert(msg, 'error');
         setLoading(false);
       }
     });

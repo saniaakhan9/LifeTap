@@ -121,62 +121,21 @@ const STORAGE_SESSION_KEY = 'lifetap_current_session';
  */
 class LocalMockDatabase {
   constructor() {
-    this.initDemoData();
+    this.cleanLegacyDemoData();
   }
 
-  initDemoData() {
-    let users = JSON.parse(localStorage.getItem(STORAGE_USERS_KEY) || '{}');
-    const demoEmail = "demo@lifetap.com";
-    const demoUid = "demo_user_1";
-    if (!users[demoUid]) {
-      users[demoUid] = {
-        uid: demoUid,
-        email: demoEmail,
-        displayName: "Alex Morgan",
-        passwordHash: btoa("password123"),
-        createdAt: new Date().toISOString(),
-        profile: {
-          fullName: "Alex Morgan",
-          bloodGroup: "O+",
-          allergies: "Penicillin, Peanuts (Carries EpiPen)",
-          conditions: "Type 1 Diabetes, Asthma",
-          medications: "Insulin glargine, Albuterol inhaler",
-          emergencyContact1Name: "Sarah Morgan (Spouse)",
-          emergencyContact1Phone: "+1 (555) 234-5678",
-          emergencyContact2Name: "Dr. Robert Chen (Physician)",
-          emergencyContact2Phone: "+1 (555) 876-5432",
-          instructions: "In case of unconsciousness, administer glucagon or call 911 immediately. Inhaler is in left jacket pocket.",
-          isOrganDonor: true,
-          updatedAt: new Date().toISOString()
-        }
-      };
-      localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
-      localStorage.setItem(`lifetap_user_token_${demoUid}`, "demo-emergency-token-99");
-    }
-    if (!localStorage.getItem(STORAGE_TOKENS_KEY)) {
-      // Seed a sample emergency token for immediate testing/demo
-      const demoToken = "demo-emergency-token-99";
-      const sampleTokens = {
-        [demoToken]: {
-          tokenId: demoToken,
-          userId: "demo_user_1",
-          active: true,
-          fullName: "Alex Morgan",
-          bloodGroup: "O+",
-          allergies: "Penicillin, Peanuts (Carries EpiPen)",
-          conditions: "Type 1 Diabetes, Asthma",
-          medications: "Insulin glargine, Albuterol inhaler",
-          emergencyContact1Name: "Sarah Morgan (Spouse)",
-          emergencyContact1Phone: "+1 (555) 234-5678",
-          emergencyContact2Name: "Dr. Robert Chen (Physician)",
-          emergencyContact2Phone: "+1 (555) 876-5432",
-          instructions: "In case of unconsciousness, administer glucagon or call 911 immediately. Inhaler is in left jacket pocket.",
-          isOrganDonor: true,
-          updatedAt: new Date().toISOString()
-        }
-      };
-      localStorage.setItem(STORAGE_TOKENS_KEY, JSON.stringify(sampleTokens));
-    }
+  cleanLegacyDemoData() {
+    try {
+      const session = localStorage.getItem(STORAGE_SESSION_KEY);
+      if (session && session.includes('demo_user_1')) {
+        localStorage.removeItem(STORAGE_SESSION_KEY);
+      }
+      let users = JSON.parse(localStorage.getItem(STORAGE_USERS_KEY) || '{}');
+      if (users['demo_user_1']) {
+        delete users['demo_user_1'];
+        localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
+      }
+    } catch(e) {}
   }
 
   getUsers() {

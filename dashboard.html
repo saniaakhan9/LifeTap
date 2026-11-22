@@ -571,8 +571,10 @@
     // Logout
     if (btnLogout) {
       btnLogout.addEventListener('click', async () => {
+        btnLogout.disabled = true;
+        btnLogout.textContent = 'Signing out...';
         await authService.logout();
-        window.location.href = 'index.html';
+        window.location.href = 'auth.html';
       });
     }
 

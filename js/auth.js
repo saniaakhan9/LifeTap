@@ -10,28 +10,51 @@ export const authService = {
   async register(email, password, displayName) {
     const auth = getFirebaseAuth();
     if (auth) {
-      try {
-        if (typeof window !== 'undefined' && window.firebase?.auth?.Auth?.Persistence) {
-          try {
-            await auth.setPersistence(window.firebase.auth.Auth.Persistence.LOCAL);
-          } catch(e) {}
-        }
-        const cred = await auth.createUserWithEmailAndPassword(email, password);
-        if (displayName && cred.user) {
-          await cred.user.updateProfile({ displayName });
-        }
-        if (cred && cred.user) {
-          localDb.setSession({
-            uid: cred.user.uid,
-            email: cred.user.email,
-            displayName: displayName || cred.user.email.split('@')[0]
-          });
-        }
-        return cred.user;
-      } catch (err) {
-        console.warn("Firebase Auth register failed, attempting local fallback:", err);
-        return await localDb.signUp(email, password, displayName);
+      if (typeof window !== 'undefined' && window.firebase?.auth?.Auth?.Persistence) {
+        try {
+          await auth.setPersistence(window.firebase.auth.Auth.Persistence.LOCAL);
+        } catch(e) {}
       }
+
+      // Create new user in Firebase Auth
+      const cred = await auth.createUserWithEmailAndPassword(email, password);
+      if (displayName && cred.user) {
+        try {
+          await cred.user.updateProfile({ displayName });
+        } catch(e) {}
+      }
+
+      const userObj = {
+        uid: cred.user.uid,
+        email: cred.user.email,
+        displayName: displayName || (cred.user.email ? cred.user.email.split('@')[0] : 'Member')
+      };
+
+      // Set session
+      localDb.setSession(userObj);
+
+      // Pre-seed a clean, empty initial profile for the new user
+      const initialProfile = {
+        fullName: displayName || '',
+        bloodGroup: '',
+        allergies: '',
+        conditions: '',
+        medications: '',
+        emergencyContact1Name: '',
+        emergencyContact1Phone: '',
+        emergencyContact2Name: '',
+        emergencyContact2Phone: '',
+        instructions: '',
+        isOrganDonor: false,
+        updatedAt: new Date().toISOString()
+      };
+
+      try {
+        localStorage.setItem(`lifetap_profile_${cred.user.uid}`, JSON.stringify(initialProfile));
+        await localDb.saveUserProfile(cred.user.uid, initialProfile);
+      } catch(e) {}
+
+      return cred.user;
     } else {
       return await localDb.signUp(email, password, displayName);
     }
